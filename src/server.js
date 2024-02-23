@@ -1,19 +1,25 @@
 import express from 'express'
-import MysqlConnection from './config/mysql.js'
+import Database from './config/mysql.js'
+import { env } from './config/environment.js'
+import cors from 'cors'
+import bodyParser from 'body-parser'
+import { API } from './routes/index.js'
 
 const app = express()
 
 app.use(express.json())
+app.use(cors())
+app.use(bodyParser.urlencoded({ extended: false }))
+app.use(bodyParser.json())
 
-const hostname = 'localhost'
-const port = 1406
+app.use(API)
 
 
-app.listen(port, hostname, () => {
-  console.log(`Server is running at ${ hostname }:${ port }`)
+app.listen(env.PORT, () => {
+  console.log(`Server is running at ${ env.HOSTNAME }:${ env.PORT }`)
 })
 
-MysqlConnection.connect(function (err) {
+Database.getConnection(function (err) {
   if(err) {
     console.log("Error connecting to Mysql " + err.stack);
   } else {
@@ -21,13 +27,3 @@ MysqlConnection.connect(function (err) {
   }
 })
 
-app.get('/', (req, res) => {
-  const query = 'Select * from user'
-  MysqlConnection.query(query, (err, results) => {
-    if(err) {
-      throw err
-    } else {
-      res.send(results)
-    }
-  })
-})

@@ -1,11 +1,12 @@
-import mysql from 'mysql';
+import mysql from 'mysql2';
+import { env } from './environment.js';
 
-const MysqlConnection = mysql.createConnection({
+const Database = mysql.createPool({
   host: 'localhost',
-  database: 'backend_web',
+  database: env.DATABASE_NAME,
   user: 'root',
   password: ''
-})
+}).promise();
 
 
-export default MysqlConnection
+export default Database
