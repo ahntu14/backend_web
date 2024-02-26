@@ -47,7 +47,7 @@ const Login = async (email, password) => {
           role
         })
         return {
-          email, 
+          email,
           name,
           role,
           accessToken,
