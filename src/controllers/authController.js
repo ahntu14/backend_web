@@ -7,13 +7,13 @@ import ApiError  from '../utils/ApiError.js';
 // Register for new user
 const Register = async (req, res, next) => {
   try {
-    const {firstname, lastname, email, password, address, phone} = req.body
-    if(!firstname || !lastname || !email || !password || !address || !phone) {
+    const {name, email, password} = req.body
+    if(!name || !email || !password) {
       throw new ApiError(StatusCodes.NOT_FOUND, "Missing required parameters")
     } else if(!emailValidation(email)) {
       throw new ApiError(StatusCodes.NOT_FOUND, "Email is invalid")
     } else {
-      const result = await authService.Register(firstname, lastname, email, password, address, phone)
+      const result = await authService.Register(name, email, password)
       res.status(StatusCodes.CREATED).json(result)
       next()
     }

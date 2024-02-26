@@ -4,24 +4,21 @@ import { comparePassword } from "../utils/hashPassword.js"
 import { token } from "../utils/token.js"
 
 
-const Register = async (firstname, lastname, email, password, address, phone) => {
+const Register = async (name, email, password) => {
   try {
     const role = "user" 
     const created_at = new Date()
     password = await hashPassword(password)
     const values = [
       [
-      firstname,
-      lastname,
+      name,
       email,
       password,
       role,
-      address,
-      phone,
       created_at
       ]
     ]
-    const query = 'INSERT INTO  user(firstname, lastname, email, password,role, address, phone, created_at) VALUES?'
+    const query = 'INSERT INTO  user(name, email, password, role, created_at) VALUES?'
     let [result ] = await Database.query(query, [values])
     return result
   } catch (error) {
@@ -39,6 +36,7 @@ const Login = async (email, password) => {
       if(await comparePassword(password, result[0].password)) {
         let userId = result[0].id
         let role = result[0].role
+        let name = result[0].name
         const accessToken = token.generateAccessToken({
           userId,
           role
@@ -48,10 +46,9 @@ const Login = async (email, password) => {
           userId,
           role
         })
-        let fullName = result[0].firstname + ' ' + result[0].lastname
         return {
           email, 
-          fullName,
+          name,
           role,
           accessToken,
           refreshToken
