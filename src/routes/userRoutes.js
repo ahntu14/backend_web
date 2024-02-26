@@ -3,6 +3,7 @@ import { userController } from "../controllers/userController.js";
 
 const Router = express.Router();
 
-Router.get('/all', userController.getAllUsers)
+//Update information for user
+Router.put('/update/:id', userController.UpdateInfo)
 
 export const userRoutes = Router
