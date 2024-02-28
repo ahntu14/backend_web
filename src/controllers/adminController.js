@@ -1,33 +1,31 @@
-import { StatusCodes } from "http-status-codes";
+import { StatusCodes } from 'http-status-codes';
 import ApiError from '../utils/ApiError.js';
-import { adminService } from "../services/adminService.js";
+import { adminService } from '../services/adminService.js';
 
 // Get all users
 const getAllUsers = async (req, res, next) => {
-  try {
-    const result = await adminService.getAllUsers()
-    res.status(StatusCodes.OK).json(result)
-    next()
-  } catch (error) {
-    next (error)
-  }
-}
+    try {
+        const result = await adminService.getAllUsers();
+        res.status(StatusCodes.OK).json(result);
+        next();
+    } catch (error) {
+        next(error);
+    }
+};
 
 //Delete an user
 const deleteUser = async (req, res, next) => {
-  try {
-    const userId = req.params.id
-    const result = await adminService.deleteUser(userId[1])
-    res.status(StatusCodes.OK).json(result)
-    next()
-  } catch (error) {
-    next (error)
-  }
-}
-
-
+    try {
+        const userId = req.params.id;
+        const result = await adminService.deleteUser(userId[1]);
+        res.status(StatusCodes.OK).json(result);
+        next();
+    } catch (error) {
+        next(error);
+    }
+};
 
 export const adminController = {
-  getAllUsers,
-  deleteUser
-}
+    getAllUsers,
+    deleteUser,
+};
