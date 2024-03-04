@@ -8,4 +8,7 @@ export const env = {
     DATABASE_NAME: process.env.DATABASE_NAME,
     HOSTNAME: process.env.HOSTNAME,
     PORT: process.env.PORT,
+    CLOUDINARY_NAME: process.env.CLOUDINARY_NAME,
+    CLOUDINARY_KEY: process.env.CLOUDINARY_KEY,
+    CLOUDINARY_SECRET: process.env.CLOUDINARY_SECRET,
 };

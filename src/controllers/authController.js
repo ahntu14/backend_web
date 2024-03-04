@@ -8,9 +8,9 @@ const Register = async (req, res, next) => {
     try {
         const { name, email, password } = req.body;
         if (!name || !email || !password) {
-            throw new ApiError(StatusCodes.NOT_FOUND, 'Missing required parameters');
+            throw new Error('Missing required parameters');
         } else if (!emailValidation(email)) {
-            throw new ApiError(StatusCodes.NOT_FOUND, 'Email is invalid');
+            throw new Error('Email is invalid');
         } else {
             const result = await authService.Register(name, email, password);
             if (result === 'User email is already registered') {
@@ -49,7 +49,16 @@ const Login = async (req, res, next) => {
     }
 };
 
+// Renew accessToken with refreshToken
+const RefreshToken = async (req, res, next) => {
+    try {
+    } catch (error) {
+        next(error);
+    }
+};
+
 export const authController = {
     Register,
     Login,
+    RefreshToken,
 };
