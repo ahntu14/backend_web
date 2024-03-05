@@ -31,16 +31,16 @@ const Login = async (email, password) => {
 
         if (result.length > 0) {
             if (await comparePassword(password, result[0].password)) {
-                let userId = result[0].id;
+                let id = result[0].id;
                 let role = result[0].role;
                 let name = result[0].name;
                 const accessToken = token.generateAccessToken({
-                    userId,
+                    id,
                     role,
                 });
 
                 const refreshToken = token.generateRefreshToken({
-                    userId,
+                    id,
                     role,
                 });
                 return {

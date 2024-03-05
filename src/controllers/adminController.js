@@ -25,7 +25,20 @@ const deleteUser = async (req, res, next) => {
     }
 };
 
+// Get products
+const getProducts = async (req, res, next) => {
+    try {
+        const { page } = req.query;
+        const products = await adminService.getProducts(page);
+        res.status(StatusCodes.OK).json(products);
+        next();
+    } catch (error) {
+        next(error);
+    }
+};
+
 export const adminController = {
     getAllUsers,
     deleteUser,
+    getProducts,
 };

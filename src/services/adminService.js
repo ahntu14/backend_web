@@ -22,7 +22,26 @@ const deleteUser = async (userId) => {
     }
 };
 
+// Get products
+const getProducts = async (page) => {
+    try {
+        const [allProducts] = await Database.query('SELECT * FROM product');
+        const totalProducts = allProducts.length;
+        const query = `SELECT * FROM product limit 10 OFFSET ${page * 10}`;
+        const [result] = await Database.query(query);
+        return {
+            products: result,
+            totalProducts: totalProducts,
+            totalPage: Math.ceil(totalProducts / 10),
+            currentPage: page,
+        };
+    } catch (error) {
+        throw error;
+    }
+};
+
 export const adminService = {
     getAllUsers,
     deleteUser,
+    getProducts,
 };
