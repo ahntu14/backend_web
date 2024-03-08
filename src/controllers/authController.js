@@ -52,6 +52,9 @@ const Login = async (req, res, next) => {
 // Renew accessToken with refreshToken
 const RefreshToken = async (req, res, next) => {
     try {
+        const refreshToken = req.headers.refreshtoken;
+        const result = await authService.RefreshToken(refreshToken);
+        res.status(StatusCodes.OK).json(result);
     } catch (error) {
         next(error);
     }

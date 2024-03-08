@@ -22,7 +22,19 @@ const categoryProduct = async (category) => {
     }
 };
 
+// search products
+const searchProducts = async (keyword) => {
+    try {
+        const query = `SELECT * FROM product WHERE name LIKE '%${keyword}%'`;
+        const [results] = await Database.query(query);
+        return results;
+    } catch (error) {
+        throw error;
+    }
+};
+
 export const publicService = {
     allProducts,
     categoryProduct,
+    searchProducts,
 };

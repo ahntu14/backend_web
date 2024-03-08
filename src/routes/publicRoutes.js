@@ -6,6 +6,10 @@ const Router = express.Router();
 // get all products
 Router.get('/products', publicController.allProducts);
 
-Router.get('/:category', publicController.categoryProduct);
+// get all category's products
+Router.get('/category', publicController.categoryProduct);
+
+// search for products
+Router.get('/search', publicController.searchProducts);
 
 export const publicRoutes = Router;

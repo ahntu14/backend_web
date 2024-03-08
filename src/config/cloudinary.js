@@ -12,13 +12,24 @@ cloudinary.config({
     api_secret: env.CLOUDINARY_SECRET,
 });
 
-export const storage = (folder) =>
-    new CloudinaryStorage({
-        cloudinary,
-        allowedFormats: ['jpg', 'png', 'jpeg'],
-        params: {
-            folder: folder,
-        },
-    });
+// const storage = () =>
+//     new CloudinaryStorage({
+//         cloudinary,
+//         allowedFormats: ['jpg', 'png', 'jpeg', 'webp'],
+//         params: {
+//             folder: '',
+//         },
+//     });
 
-export const uploadCloud = multer({ storage });
+// export const uploadCloud = multer({ storage });
+
+export const uploadCloud = (folder) => {
+    const storage = () =>
+        new CloudinaryStorage({
+            cloudinary,
+            allowedFormats: ['jpg', 'png', 'jpeg', 'webp'],
+            folder: folder,
+        });
+
+    return multer({ storage });
+};

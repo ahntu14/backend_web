@@ -9,6 +9,6 @@ Router.post('/register', authController.Register);
 //Login for user had an account
 Router.post('/login', authController.Login);
 
-Router.post('/refreshToken', authController.RefreshToken);
+Router.post('/refresh-token', authController.RefreshToken);
 
 export const authRoutes = Router;

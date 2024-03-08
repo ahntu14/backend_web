@@ -14,10 +14,26 @@ const allProducts = async (req, res, next) => {
     }
 };
 
+// search products
+const searchProducts = async (req, res, next) => {
+    try {
+        let { keyword } = req.query;
+        if (!keyword) {
+            res.status(StatusCodes.NOT_FOUND).json('Keyword is missing');
+        } else {
+            const results = await publicService.searchProducts(keyword);
+            res.status(StatusCodes.OK).json(results);
+            next();
+        }
+    } catch (error) {
+        next(error);
+    }
+};
+
 // get product by category name
 const categoryProduct = async (req, res, next) => {
     try {
-        let category = req.params.category.slice(1);
+        let { category } = req.query;
         if (!category) {
             res.status(StatusCodes.NOT_FOUND).json('Category is not found');
         } else {
@@ -33,4 +49,5 @@ const categoryProduct = async (req, res, next) => {
 export const publicController = {
     allProducts,
     categoryProduct,
+    searchProducts,
 };
