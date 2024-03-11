@@ -9,7 +9,7 @@ const verifyToken = (req, res, next) => {
     if (token) {
         jwt.verify(token, env.JWT_ACCESS_KEY, (err, decodedToken) => {
             if (err) {
-                throw new ApiError(StatusCodes.FORBIDDEN, 'Token is not invalid');
+                throw new ApiError(StatusCodes.FORBIDDEN, 'Token is invalid');
             } else if (decodedToken.iat < 0) {
                 throw new ApiError(StatusCodes.FORBIDDEN, 'Token expired');
             } else {

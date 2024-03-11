@@ -28,8 +28,6 @@ const Login = async (email, password) => {
                     });
 
                     if (!result[0].refreshToken) {
-                        const insertQuery = `UPDATE user SET refreshToken = ? WHERE id = ?`;
-                        await Database.query(insertQuery, [refreshToken, id]);
                     } else {
                         const updateQuery = `UPDATE user SET refreshToken = ? WHERE id = ?`;
                         await Database.query(updateQuery, [refreshToken, id]);
