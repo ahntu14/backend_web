@@ -27,7 +27,25 @@ const GetInfo = async (req, res, next) => {
     }
 };
 
+// Add products to cart
+const ToCart = async (req, res, next) => {
+    try {
+        let id = req.headers.id;
+        const { productId, quantity } = req.body;
+        if (!productId || !quantity) {
+            throw new ApiError(StatusCodes.NO_CONTENT, 'Missing arguments');
+        } else {
+            const result = await userService.ToCart(productId, quantity, id);
+            res.status(StatusCodes.CREATED).json(result);
+            next();
+        }
+    } catch (error) {
+        next();
+    }
+};
+
 export const userController = {
     UpdateInfo,
     GetInfo,
+    ToCart,
 };

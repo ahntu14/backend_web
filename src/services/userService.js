@@ -23,7 +23,20 @@ const GetInfo = async (id) => {
     }
 };
 
+// Add products to cart
+const ToCart = async (productId, quantity, id) => {
+    try {
+        const values = [[productId, quantity, id]];
+        const query = 'INSERT INTO cart (productId, quantity, userId) VALUES ?';
+        const [result] = await Database.query(query, [values]);
+        return result;
+    } catch (error) {
+        throw error;
+    }
+};
+
 export const userService = {
     UpdateInfo,
     GetInfo,
+    ToCart,
 };

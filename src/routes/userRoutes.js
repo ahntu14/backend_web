@@ -10,4 +10,7 @@ Router.put('/info', jwtMiddleware.verifyToken, userController.UpdateInfo);
 // Get information
 Router.get('/info', jwtMiddleware.verifyToken, userController.GetInfo);
 
+// Add products to cart
+Router.post('/cart', jwtMiddleware.verifyToken, userController.ToCart);
+
 export const userRoutes = Router;

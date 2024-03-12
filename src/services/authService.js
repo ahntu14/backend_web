@@ -1,6 +1,6 @@
 import Database from '../config/mysql.js';
-import { hashPassword } from '../utils/hashPassword.js';
-import { comparePassword } from '../utils/hashPassword.js';
+import { hashPassword } from '../utils/password.js';
+import { comparePassword } from '../utils/password.js';
 import { token } from '../utils/token.js';
 import jwt from 'jsonwebtoken';
 import { env } from '../config/environment.js';

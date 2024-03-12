@@ -1,5 +1,5 @@
 import Database from '../config/mysql.js';
-import { comparePassword } from '../utils/hashPassword.js';
+import { comparePassword } from '../utils/password.js';
 import { token } from '../utils/token.js';
 import ApiError from '../utils/ApiError.js';
 import { StatusCodes } from 'http-status-codes';
