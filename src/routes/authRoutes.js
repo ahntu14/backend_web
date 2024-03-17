@@ -11,4 +11,10 @@ Router.post('/login', authController.Login);
 
 Router.post('/refresh-token', authController.RefreshToken);
 
+// Forgot password
+Router.post('/forgot-password', authController.ForgotPassword);
+
+// Change password
+Router.post('/change-password', authController.ChangePassword);
+
 export const authRoutes = Router;

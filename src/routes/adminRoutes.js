@@ -22,4 +22,7 @@ Router.post('/new-product', adminController.createProduct);
 // Delete a product
 Router.delete('/delete-product/:id', adminController.deleteProduct);
 
+// Update a product
+Router.put('/update-product', adminController.updateProduct);
+
 export const adminRoutes = Router;

@@ -60,8 +60,40 @@ const RefreshToken = async (req, res, next) => {
     }
 };
 
+// Forgot password
+const ForgotPassword = async (req, res, next) => {
+    try {
+        const { email } = req.body;
+        const result = await authService.ForgotPassword(email);
+        res.status(StatusCodes.OK).json(result);
+        next();
+    } catch (error) {
+        next(error);
+    }
+};
+
+// Change password
+const ChangePassword = async (req, res, next) => {
+    try {
+        const { email, password, newPassword } = req.body;
+        if (!email || !password || !newPassword) {
+            throw new Error('Missing something');
+        } else if (password == 123456789) {
+            const result = await authService.ChangePassword(email, newPassword);
+            res.status(StatusCodes.OK).json(result);
+            next();
+        } else {
+            throw new ApiError(StatusCodes.NOT_FOUND, 'password is invalid');
+        }
+    } catch (error) {
+        next(error);
+    }
+};
+
 export const authController = {
     Register,
     Login,
     RefreshToken,
+    ForgotPassword,
+    ChangePassword,
 };

@@ -2,6 +2,7 @@ import express from 'express';
 import Database from './config/mysql.js';
 import { env } from './config/environment.js';
 import cors from 'cors';
+import { errorHandlingMiddleware } from './middlewares/errorHandlingMiddleware.js';
 import bodyParser from 'body-parser';
 import { API } from './routes/index.js';
 
@@ -15,6 +16,8 @@ app.use(cors());
 // app.use(bodyParser.urlencoded({ extended: true }));
 
 app.use(API);
+
+app.use(errorHandlingMiddleware);
 
 app.listen(env.PORT, () => {
     console.log(`Server is running at ${env.HOSTNAME}:${env.PORT}`);

@@ -80,12 +80,12 @@ const getProducts = async (page) => {
     try {
         const [allProducts] = await Database.query('SELECT * FROM product');
         const totalProducts = allProducts.length;
-        const query = `SELECT * FROM product limit 10 OFFSET ${page * 10}`;
+        const query = `SELECT * FROM product limit 8 OFFSET ${page * 8}`;
         const [result] = await Database.query(query);
         return {
             products: result,
             totalProducts: totalProducts,
-            totalPage: Math.ceil(totalProducts / 10),
+            totalPage: Math.ceil(totalProducts / 8),
             currentPage: page,
         };
     } catch (error) {
@@ -157,6 +157,48 @@ const deleteProduct = async (id) => {
     }
 };
 
+//Update a product
+const updateProduct = async (
+    id,
+    name,
+    category,
+    videoUrl,
+    newPrice,
+    chip,
+    ram,
+    rom,
+    screen,
+    pin,
+    selfieCam,
+    behindCam,
+    chargeSpeed,
+    quantity,
+) => {
+    try {
+        const query =
+            'UPDATE product SET name = ?, category = ?, videoUrl = ?, newPrice = ?, chip = ?, ram = ?, rom = ?, screen = ?, pin = ?, selfieCam = ?, behindCam = ?, chargeSpeed = ?, quantity = ? WHERE id = ?';
+        const [result] = await Database.query(query, [
+            name,
+            category,
+            videoUrl,
+            newPrice,
+            chip,
+            ram,
+            rom,
+            screen,
+            pin,
+            selfieCam,
+            behindCam,
+            chargeSpeed,
+            quantity,
+            id,
+        ]);
+        return result;
+    } catch (error) {
+        throw error;
+    }
+};
+
 export const adminService = {
     Login,
     getAllUsers,
@@ -164,4 +206,5 @@ export const adminService = {
     getProducts,
     createProduct,
     deleteProduct,
+    updateProduct,
 };

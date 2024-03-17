@@ -148,6 +148,66 @@ const deleteProduct = async (req, res, next) => {
     }
 };
 
+//Update a product
+const updateProduct = async (req, res, next) => {
+    try {
+        const {
+            id,
+            name,
+            category,
+            videoUrl,
+            newPrice,
+            chip,
+            ram,
+            rom,
+            screen,
+            pin,
+            selfieCam,
+            behindCam,
+            chargeSpeed,
+            quantity,
+        } = req.body;
+        if (
+            !id ||
+            !name ||
+            !category ||
+            !videoUrl ||
+            !newPrice ||
+            !chip ||
+            !ram ||
+            !rom ||
+            !screen ||
+            !pin ||
+            !selfieCam ||
+            !behindCam ||
+            !chargeSpeed ||
+            !quantity
+        ) {
+            throw new ApiError(StatusCodes.NO_CONTENT, 'Missing something');
+        } else {
+            const result = await adminService.updateProduct(
+                id,
+                name,
+                category,
+                videoUrl,
+                newPrice,
+                chip,
+                ram,
+                rom,
+                screen,
+                pin,
+                selfieCam,
+                behindCam,
+                chargeSpeed,
+                quantity,
+            );
+            res.status(StatusCodes.OK).json(result);
+        }
+    } catch (error) {
+        next(error);
+    }
+};
+
 export const adminController = {
     Login,
     getAllUsers,
@@ -155,4 +215,5 @@ export const adminController = {
     getProducts,
     createProduct,
     deleteProduct,
+    updateProduct,
 };

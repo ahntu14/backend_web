@@ -6,6 +6,8 @@ import jwt from 'jsonwebtoken';
 import { env } from '../config/environment.js';
 import ApiError from '../utils/ApiError.js';
 import { StatusCodes } from 'http-status-codes';
+import { SuccessEmail, sendRegisterEmail } from '../utils/sendEmail.js';
+import { rePassWord } from '../utils/sendEmail.js';
 
 const Register = async (name, email, password) => {
     try {
@@ -20,6 +22,7 @@ const Register = async (name, email, password) => {
             const values = [[name, email, password, role, created_at]];
             const query = 'INSERT INTO  user(name, email, password, role, created_at) VALUES?';
             let [result] = await Database.query(query, [values]);
+            await sendRegisterEmail(email);
             return result;
         }
     } catch (error) {
@@ -116,8 +119,42 @@ const RefreshToken = async (refreshToken) => {
     }
 };
 
+// Forgot password
+const ForgotPassword = async (email) => {
+    try {
+        const [isUser] = await Database.query('SELECT * FROM user WHERE email = ?', [email]);
+        if (isUser.length > 0) {
+            await rePassWord(email);
+            return 'Check your email address';
+        } else {
+            throw new ApiError(StatusCodes.NOT_FOUND, 'User not found');
+        }
+    } catch (error) {
+        throw error;
+    }
+};
+
+// Change password
+const ChangePassword = async (email, newPassword) => {
+    try {
+        const [isUser] = await Database.query('SELECT * FROM user WHERE email = ?', [email]);
+        if (isUser.length > 0) {
+            let password = await hashPassword(newPassword);
+            const [result] = await Database.query('UPDATE user SET password = ? WHERE email = ?', [password, email]);
+            await SuccessEmail(email);
+            return result;
+        } else {
+            throw new ApiError(StatusCodes.NOT_FOUND, 'User not found');
+        }
+    } catch (error) {
+        throw error;
+    }
+};
+
 export const authService = {
     Register,
     Login,
     RefreshToken,
+    ForgotPassword,
+    ChangePassword,
 };
