@@ -41,7 +41,6 @@ const Login = async (email, password) => {
                 let id = result[0].id;
                 let role = result[0].role;
                 let name = result[0].name;
-                console.log(role);
                 if (role === 'user') {
                     const accessToken = token.generateAccessToken({
                         id,

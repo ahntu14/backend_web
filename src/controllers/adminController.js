@@ -65,10 +65,10 @@ const getProducts = async (req, res, next) => {
 // Create a new product
 const createProduct = async (req, res, next) => {
     try {
+        const imageUrl = req.file.path;
         const {
             name,
             category,
-            imageUrl,
             videoUrl,
             oldPrice,
             newPrice,
@@ -80,11 +80,10 @@ const createProduct = async (req, res, next) => {
             selfieCam,
             behindCam,
             chargeSpeed,
-            rate,
-            numberReview,
             slug,
             quantity,
         } = req.body;
+
         if (
             !name ||
             !category ||
@@ -99,7 +98,6 @@ const createProduct = async (req, res, next) => {
             !selfieCam ||
             !behindCam ||
             !chargeSpeed ||
-            !rate ||
             !quantity
         ) {
             throw new Error('Missing details of product');
@@ -119,8 +117,6 @@ const createProduct = async (req, res, next) => {
                 selfieCam,
                 behindCam,
                 chargeSpeed,
-                rate,
-                numberReview,
                 slug,
                 quantity,
             );
@@ -136,6 +132,7 @@ const createProduct = async (req, res, next) => {
 const deleteProduct = async (req, res, next) => {
     try {
         const productId = req.params.id.slice(1);
+        console.log(productId);
         if (!productId) {
             throw new Error('Missing product id');
         } else {

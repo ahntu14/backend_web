@@ -109,8 +109,6 @@ const createProduct = async (
     selfieCam,
     behindCam,
     chargeSpeed,
-    rate,
-    numberReview,
     slug,
     quantity,
 ) => {
@@ -131,14 +129,12 @@ const createProduct = async (
                 selfieCam,
                 behindCam,
                 chargeSpeed,
-                rate,
-                numberReview,
                 slug,
                 quantity,
             ],
         ];
         const query =
-            'INSERT INTO product(name, category, imageUrl, videoUrl, oldPrice, newPrice, chip, ram, rom, screen, pin, selfieCam, behindCam, chargeSpeed, rate, numberReview, slug, quantity) VALUES ?';
+            'INSERT INTO product(name, category, imageUrl, videoUrl, oldPrice, newPrice, chip, ram, rom, screen, pin, selfieCam, behindCam, chargeSpeed, slug, quantity) VALUES ?';
         const [newProduct] = await Database.query(query, [values]);
         return newProduct;
     } catch (error) {

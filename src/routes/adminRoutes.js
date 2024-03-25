@@ -17,7 +17,7 @@ Router.delete('/manage/:id', adminController.deleteUser);
 Router.get('/products', adminController.getProducts);
 
 // Create a new product
-Router.post('/new-product', adminController.createProduct);
+Router.post('/new-product', uploadCloud.single('image'), adminController.createProduct);
 
 // Delete a product
 Router.delete('/delete-product/:id', adminController.deleteProduct);
