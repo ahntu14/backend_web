@@ -35,8 +35,19 @@ const ToCart = async (productId, quantity, id) => {
     }
 };
 
+// Get all products from cart by user id
+const GetCart = async (userId) => {
+    try {
+        const query = `SELECT product.* FROM product INNER JOIN cart ON product.id = cart.productId and userId = ${userId};`;
+        const [result] = await Database.query(query);
+        return result;
+    } catch (error) {
+        throw error;
+    }
+};
 export const userService = {
     UpdateInfo,
     GetInfo,
     ToCart,
+    GetCart,
 };

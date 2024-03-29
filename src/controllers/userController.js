@@ -40,7 +40,23 @@ const ToCart = async (req, res, next) => {
             next();
         }
     } catch (error) {
-        next();
+        next(error);
+    }
+};
+
+// Get all products from cart by user id
+const GetCart = async (req, res, next) => {
+    try {
+        const userId = req.headers.id;
+        if (!userId) {
+            throw new ApiError(StatusCodes.UNAUTHORIZED, 'Missing id');
+        } else {
+            const allCarts = await userService.GetCart(userId);
+            res.status(StatusCodes.OK).json(allCarts);
+            next();
+        }
+    } catch (error) {
+        next(error);
     }
 };
 
@@ -48,4 +64,5 @@ export const userController = {
     UpdateInfo,
     GetInfo,
     ToCart,
+    GetCart,
 };
