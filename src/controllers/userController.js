@@ -60,9 +60,44 @@ const GetCart = async (req, res, next) => {
     }
 };
 
+// Add product to favorites list
+const ToFavorite = async (req, res, next) => {
+    try {
+        let id = req.headers.id;
+        const { productId } = req.body;
+        if (!productId) {
+            throw new ApiError(StatusCodes.NO_CONTENT, 'Missing arguments');
+        } else {
+            const result = await userService.ToFavorite(productId, id);
+            res.status(StatusCodes.CREATED).json(result);
+            next();
+        }
+    } catch (error) {
+        next(error);
+    }
+};
+
+// Get  product from favorites list
+const GetFavorite = async (req, res, next) => {
+    try {
+        const userId = req.headers.id;
+        if (!userId) {
+            throw new ApiError(StatusCodes.UNAUTHORIZED, 'Missing id');
+        } else {
+            const allFavorites = await userService.GetFavorite(userId);
+            res.status(StatusCodes.OK).json(allFavorites);
+            next();
+        }
+    } catch (error) {
+        next(error);
+    }
+};
+
 export const userController = {
     UpdateInfo,
     GetInfo,
     ToCart,
     GetCart,
+    ToFavorite,
+    GetFavorite,
 };

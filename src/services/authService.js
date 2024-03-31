@@ -95,6 +95,7 @@ const RefreshToken = async (refreshToken) => {
         let id = token1.payload.id;
         const [result] = await Database.query('Select refreshToken from user where id = ?', [id]);
         let oldToken = result[0].refreshToken;
+        let userId = result[0].userId;
         if (refreshToken === oldToken) {
             let dateNow = new Date();
             if (token1.exp > dateNow.getTime() / 1000) {
@@ -104,11 +105,21 @@ const RefreshToken = async (refreshToken) => {
                 });
                 return accessToken;
             } else {
-                let refreshToken = token.generateRefreshToken({
+                let newRefreshToken = token.generateRefreshToken({
                     id,
                     role,
                 });
-                return refreshToken;
+
+                await Database.query(`UPDATE user SET refreshToken = ${newRefreshToken} WHERE userId = ${userId}`);
+
+                let accessToken = token.generateAccessToken({
+                    id,
+                    role,
+                });
+                return {
+                    accessToken: accessToken,
+                    refreshToken: newRefreshToken,
+                };
             }
         } else {
             return 'Token is not match';

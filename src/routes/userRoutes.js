@@ -16,4 +16,10 @@ Router.post('/cart', jwtMiddleware.verifyToken, userController.ToCart);
 // Get all products from cart by user id
 Router.get('/cart', jwtMiddleware.verifyToken, userController.GetCart);
 
+// Add products to cart
+Router.post('/favorite', jwtMiddleware.verifyToken, userController.ToFavorite);
+
+// Get all products from cart by user id
+Router.get('/favorite', jwtMiddleware.verifyToken, userController.GetFavorite);
+
 export const userRoutes = Router;

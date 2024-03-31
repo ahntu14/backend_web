@@ -24,12 +24,25 @@ const GetInfo = async (id) => {
 };
 
 // Add products to cart
-const ToCart = async (productId, quantity, id) => {
+const ToCart = async (productId, quantity, userId) => {
     try {
-        const values = [[productId, quantity, id]];
-        const query = 'INSERT INTO cart (productId, quantity, userId) VALUES ?';
-        const [result] = await Database.query(query, [values]);
-        return result;
+        const [existingProduct] = await Database.query('SELECT * FROM cart WHERE productId = ? AND userId = ?', [
+            productId,
+            userId,
+        ]);
+
+        if (existingProduct.length > 0) {
+            let updatedQuantity = parseInt(existingProduct[0].quantity) + parseInt(quantity);
+
+            const query = 'UPDATE cart SET quantity = ? WHERE productId = ? AND userId = ?';
+            const [result] = await Database.query(query, [updatedQuantity, productId, userId]);
+            return result;
+        } else {
+            const values = [[productId, quantity, userId]];
+            const query = 'INSERT INTO cart (productId, quantity, userId) VALUES ?';
+            const [result] = await Database.query(query, [values]);
+            return result;
+        }
     } catch (error) {
         throw error;
     }
@@ -45,9 +58,35 @@ const GetCart = async (userId) => {
         throw error;
     }
 };
+
+// Add products to favorites
+const ToFavorite = async (productId, id) => {
+    try {
+        const values = [[productId, id]];
+        const query = 'INSERT INTO favorite (productId, userId) VALUES ?';
+        const [result] = await Database.query(query, [values]);
+        return result;
+    } catch (error) {
+        throw error;
+    }
+};
+
+// Get all products from favorites by user id
+const GetFavorite = async (userId) => {
+    try {
+        const query = `SELECT product.* FROM product INNER JOIN favorite ON product.id = favorite.productId and userId = ${userId};`;
+        const [result] = await Database.query(query);
+        return result;
+    } catch (error) {
+        throw error;
+    }
+};
+
 export const userService = {
     UpdateInfo,
     GetInfo,
     ToCart,
     GetCart,
+    ToFavorite,
+    GetFavorite,
 };
