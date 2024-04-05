@@ -3,7 +3,7 @@ import { env } from '../config/environment.js';
 
 const generateAccessToken = (payload) => {
     const options = {
-        expiresIn: '1h', // Token hết hạn sau 1 giờ
+        expiresIn: '24h',
     };
     return jwt.sign(
         {

@@ -82,6 +82,30 @@ const GetFavorite = async (userId) => {
     }
 };
 
+// Create order
+const CreateOrder = async (userId, total_amount, provider, payment_status) => {
+    try {
+        const values = [[userId, total_amount, provider, payment_status]];
+        const query = 'INSERT INTO orders (userId, total_amount, provider, payment_status) VALUES?';
+        const [result] = await Database.query(query, [values]);
+        return result;
+    } catch (error) {
+        throw error;
+    }
+};
+
+// Create order details
+const CreateOrderDetails = async (order_id, productId, quantity, price) => {
+    try {
+        const values = [[order_id, productId, quantity, price]];
+        const query = 'INSERT INTO order_details (order_id, productId, quantity, price) VALUES?';
+        const [result] = await Database.query(query, [values]);
+        return result;
+    } catch (error) {
+        throw error;
+    }
+};
+
 export const userService = {
     UpdateInfo,
     GetInfo,
@@ -89,4 +113,6 @@ export const userService = {
     GetCart,
     ToFavorite,
     GetFavorite,
+    CreateOrder,
+    CreateOrderDetails,
 };

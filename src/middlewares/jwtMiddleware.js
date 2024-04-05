@@ -9,9 +9,11 @@ const verifyToken = (req, res, next) => {
     if (token) {
         jwt.verify(token, env.JWT_ACCESS_KEY, (err, decodedToken) => {
             if (err) {
-                throw new ApiError(StatusCodes.FORBIDDEN, 'Token is invalid');
-            } else if (decodedToken.iat < 0) {
-                throw new ApiError(StatusCodes.FORBIDDEN, 'Token expired');
+                if (err.name === 'TokenExpiredError') {
+                    return res.status(StatusCodes.UNAUTHORIZED).json({ message: 'Token đã hết hạn' });
+                } else {
+                    return res.status(StatusCodes.FORBIDDEN).json({ message: 'Token không hợp lệ' });
+                }
             } else {
                 req.headers.role = decodedToken.payload.role;
                 req.headers.id = decodedToken.payload.id;

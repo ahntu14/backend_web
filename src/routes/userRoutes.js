@@ -22,4 +22,13 @@ Router.post('/favorite', jwtMiddleware.verifyToken, userController.ToFavorite);
 // Get all products from cart by user id
 Router.get('/favorite', jwtMiddleware.verifyToken, userController.GetFavorite);
 
+//Create order
+Router.post('/order', jwtMiddleware.verifyToken, userController.CreateOrder);
+
+// Create order details
+Router.post('/order-detail', jwtMiddleware.verifyToken, userController.CreateOrderDetails);
+
+// VN Pay
+Router.post('/payment', userController.CreatePayment);
+
 export const userRoutes = Router;
