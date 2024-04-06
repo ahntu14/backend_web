@@ -31,4 +31,7 @@ Router.post('/order-detail', jwtMiddleware.verifyToken, userController.CreateOrd
 // VN Pay
 Router.post('/payment', userController.CreatePayment);
 
+// Momo payment
+Router.post('/momo-pay', userController.CreateMomoPay);
+
 export const userRoutes = Router;
