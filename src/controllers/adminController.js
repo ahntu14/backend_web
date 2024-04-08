@@ -205,6 +205,33 @@ const updateProduct = async (req, res, next) => {
     }
 };
 
+// Count add orders
+const countOrders = async (req, res, next) => {
+    try {
+        const numberOrders = await adminService.countOrders();
+        res.status(StatusCodes.OK).json(numberOrders);
+        next();
+    } catch (error) {
+        next(error);
+    }
+};
+
+// Count orders with payment method
+const countOrderPayment = async (req, res, next) => {
+    try {
+        const provider = req.query.provider;
+        if (!provider) {
+            throw new ApiError(StatusCodes.BAD_REQUEST, 'Missing provider name');
+        } else {
+            const result = await adminService.countOrderPayment(provider);
+            res.status(StatusCodes.OK).json(result);
+            next();
+        }
+    } catch (error) {
+        next(error);
+    }
+};
+
 export const adminController = {
     Login,
     getAllUsers,
@@ -213,4 +240,6 @@ export const adminController = {
     createProduct,
     deleteProduct,
     updateProduct,
+    countOrders,
+    countOrderPayment,
 };

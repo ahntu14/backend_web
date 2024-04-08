@@ -195,6 +195,28 @@ const updateProduct = async (
     }
 };
 
+// count all orders
+const countOrders = async () => {
+    try {
+        const query = 'SELECT COUNT(*) AS TotalOrders FROM orders';
+        const [result] = await Database.query(query);
+        return result;
+    } catch (error) {
+        throw error;
+    }
+};
+
+// Count orders with payment method
+const countOrderPayment = async (provider) => {
+    try {
+        const query = `SELECT * FROM orders where provider = '${provider}'`;
+        const [result] = await Database.query(query);
+        return result;
+    } catch (error) {
+        throw error;
+    }
+};
+
 export const adminService = {
     Login,
     getAllUsers,
@@ -203,4 +225,6 @@ export const adminService = {
     createProduct,
     deleteProduct,
     updateProduct,
+    countOrders,
+    countOrderPayment,
 };

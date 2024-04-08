@@ -25,4 +25,10 @@ Router.delete('/delete-product/:id', adminController.deleteProduct);
 // Update a product
 Router.put('/update-product', adminController.updateProduct);
 
+// Count all orders
+Router.get('/all-orders', adminController.countOrders);
+
+// Count all orders with payment type
+Router.get('/all-orders-payment', adminController.countOrderPayment);
+
 export const adminRoutes = Router;
