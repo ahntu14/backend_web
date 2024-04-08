@@ -232,6 +232,42 @@ const countOrderPayment = async (req, res, next) => {
     }
 };
 
+// Update status of order
+const updateOrderStatus = async (req, res, next) => {
+    try {
+        const { status, orderId } = req.body;
+        if (!status) {
+            throw new ApiError(StatusCodes.BAD_REQUEST, 'Missing status');
+        } else if (status !== 'pending' && status !== 'completed' && status !== 'cancelled') {
+            throw new ApiError(StatusCodes.BAD_REQUEST, 'Status is not accepted');
+        } else {
+            const result = await adminService.updateOrderStatus(status, orderId);
+            res.status(StatusCodes.OK).json(result);
+            next();
+        }
+    } catch (error) {
+        next(error);
+    }
+};
+
+// Get orders by status of payment
+const getOrderStatus = async (req, res, next) => {
+    try {
+        const status = req.query.status;
+        if (!status) {
+            throw new ApiError(StatusCodes.BAD_REQUEST, 'Missing status');
+        } else if (status !== 'pending' && status !== 'completed' && status !== 'cancelled') {
+            throw new ApiError(StatusCodes.BAD_REQUEST, 'Status is not accepted');
+        } else {
+            const result = await adminService.getOrderStatus(status);
+            res.status(StatusCodes.OK).json(result);
+            next();
+        }
+    } catch (error) {
+        next(error);
+    }
+};
+
 export const adminController = {
     Login,
     getAllUsers,
@@ -242,4 +278,6 @@ export const adminController = {
     updateProduct,
     countOrders,
     countOrderPayment,
+    updateOrderStatus,
+    getOrderStatus,
 };

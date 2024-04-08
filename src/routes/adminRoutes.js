@@ -31,4 +31,10 @@ Router.get('/all-orders', adminController.countOrders);
 // Count all orders with payment type
 Router.get('/all-orders-payment', adminController.countOrderPayment);
 
+//Update status of order
+Router.put('/order-status', adminController.updateOrderStatus);
+
+// Get orders with payment status
+Router.get('/order-status', adminController.getOrderStatus);
+
 export const adminRoutes = Router;

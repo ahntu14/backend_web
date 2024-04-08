@@ -217,6 +217,27 @@ const countOrderPayment = async (provider) => {
     }
 };
 
+// Update status of order
+const updateOrderStatus = async (status, orderId) => {
+    try {
+        const query = `UPDATE orders SET payment_status = '${status}' WHERE id = ${orderId}`;
+        const [result] = await Database.query(query);
+        return result;
+    } catch (error) {
+        throw error;
+    }
+};
+
+const getOrderStatus = async (status) => {
+    try {
+        const query = `SELECT * FROM orders where payment_status = '${status}'`;
+        const [result] = await Database.query(query);
+        return result;
+    } catch (error) {
+        throw error;
+    }
+};
+
 export const adminService = {
     Login,
     getAllUsers,
@@ -227,4 +248,6 @@ export const adminService = {
     updateProduct,
     countOrders,
     countOrderPayment,
+    updateOrderStatus,
+    getOrderStatus,
 };
