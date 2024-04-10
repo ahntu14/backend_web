@@ -37,4 +37,7 @@ Router.post('/momo-pay', userController.CreateMomoPay);
 // Change quantity in cart
 Router.put('/change-quantity', jwtMiddleware.verifyToken, userController.ChangeQuantity);
 
+// Delete product in cart
+Router.delete('/delete-product/:id', jwtMiddleware.verifyToken, userController.DeleteProduct);
+
 export const userRoutes = Router;

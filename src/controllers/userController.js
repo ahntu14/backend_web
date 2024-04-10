@@ -346,6 +346,23 @@ const ChangeQuantity = async (req, res, next) => {
     }
 };
 
+// Delete product from cart
+const DeleteProduct = async (req, res, next) => {
+    try {
+        const userId = req.headers.id;
+        const productId = req.params.id;
+        if (!productId[1]) {
+            throw new ApiError(StatusCodes.BAD_REQUEST, 'Missing id');
+        } else {
+            const result = await userService.DeleteProduct(userId, productId[1]);
+            res.status(StatusCodes.OK).json(result);
+            next();
+        }
+    } catch (error) {
+        next(error);
+    }
+};
+
 export const userController = {
     UpdateInfo,
     GetInfo,
@@ -358,4 +375,5 @@ export const userController = {
     CreatePayment,
     CreateMomoPay,
     ChangeQuantity,
+    DeleteProduct,
 };

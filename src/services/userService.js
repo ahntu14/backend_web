@@ -128,6 +128,25 @@ const ChangeQuantity = async (userId, productId, quantity) => {
     }
 };
 
+// Delete product from cart
+const DeleteProduct = async (userId, productId) => {
+    try {
+        const [existingProduct] = await Database.query('SELECT * FROM cart WHERE productId = ? AND userId = ?', [
+            productId,
+            userId,
+        ]);
+        if (existingProduct.length > 0) {
+            const query = `DELETE FROM cart WHERE productId = ${productId} AND userId = ${userId}`;
+            const [result] = await Database.query(query);
+            return result;
+        } else {
+            throw new ApiError(StatusCodes.NOT_FOUND, 'Product was not found');
+        }
+    } catch (error) {
+        throw error;
+    }
+};
+
 export const userService = {
     UpdateInfo,
     GetInfo,
@@ -138,4 +157,5 @@ export const userService = {
     CreateOrder,
     CreateOrderDetails,
     ChangeQuantity,
+    DeleteProduct,
 };
