@@ -329,6 +329,23 @@ const CreateMomoPay = async (req, res, next) => {
     }
 };
 
+// Change quantity in cart
+const ChangeQuantity = async (req, res, next) => {
+    try {
+        const userId = req.headers.id;
+        const { productId, quantity } = req.body;
+        if (!productId || !quantity) {
+            throw new ApiError(StatusCodes.BAD_REQUEST, 'Missing arguments');
+        } else {
+            const result = await userService.ChangeQuantity(userId, productId, quantity);
+            res.status(StatusCodes.OK).json(result);
+            next();
+        }
+    } catch (error) {
+        next(error);
+    }
+};
+
 export const userController = {
     UpdateInfo,
     GetInfo,
@@ -340,4 +357,5 @@ export const userController = {
     CreateOrderDetails,
     CreatePayment,
     CreateMomoPay,
+    ChangeQuantity,
 };

@@ -1,4 +1,6 @@
+import { StatusCodes } from 'http-status-codes';
 import Database from '../config/mysql.js';
+import ApiError from '../utils/ApiError.js';
 
 // Update user's information
 const UpdateInfo = async (id, content) => {
@@ -106,6 +108,26 @@ const CreateOrderDetails = async (order_id, productId, quantity, price) => {
     }
 };
 
+// Change quantity in cart
+const ChangeQuantity = async (userId, productId, quantity) => {
+    try {
+        const [existingProduct] = await Database.query('SELECT * FROM cart WHERE productId = ? AND userId = ?', [
+            productId,
+            userId,
+        ]);
+
+        if (existingProduct.length > 0) {
+            const query = `UPDATE cart SET quantity = ${quantity} WHERE userId = ${userId} AND productId = ${productId}`;
+            const [result] = await Database.query(query);
+            return result;
+        } else {
+            throw new ApiError(StatusCodes.NOT_FOUND, 'Product was not found');
+        }
+    } catch (error) {
+        throw error;
+    }
+};
+
 export const userService = {
     UpdateInfo,
     GetInfo,
@@ -115,4 +137,5 @@ export const userService = {
     GetFavorite,
     CreateOrder,
     CreateOrderDetails,
+    ChangeQuantity,
 };

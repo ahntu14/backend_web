@@ -41,6 +41,8 @@ const Login = async (email, password) => {
                 let id = result[0].id;
                 let role = result[0].role;
                 let name = result[0].name;
+                let phone = result[0].phone;
+                let address = result[0].address;
                 if (role === 'user') {
                     const accessToken = token.generateAccessToken({
                         id,
@@ -63,6 +65,8 @@ const Login = async (email, password) => {
                     return {
                         email,
                         name,
+                        phone,
+                        address,
                         accessToken,
                         refreshToken,
                     };

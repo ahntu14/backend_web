@@ -34,4 +34,7 @@ Router.post('/payment', userController.CreatePayment);
 // Momo payment
 Router.post('/momo-pay', userController.CreateMomoPay);
 
+// Change quantity in cart
+Router.put('/change-quantity', jwtMiddleware.verifyToken, userController.ChangeQuantity);
+
 export const userRoutes = Router;
