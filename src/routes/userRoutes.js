@@ -22,6 +22,12 @@ Router.post('/favorite', jwtMiddleware.verifyToken, userController.ToFavorite);
 // Get all products from cart by user id
 Router.get('/favorite', jwtMiddleware.verifyToken, userController.GetFavorite);
 
+// Lấy ra những đơn hàng đã mua
+Router.get('/order', jwtMiddleware.verifyToken, userController.GetOrder);
+
+// lấy ra chi tiết đơn hàng
+Router.get('/order-detail/:id', jwtMiddleware.verifyToken, userController.GetOrderDetail);
+
 //Create order
 Router.post('/order', jwtMiddleware.verifyToken, userController.CreateOrder);
 
@@ -39,5 +45,11 @@ Router.put('/change-quantity', jwtMiddleware.verifyToken, userController.ChangeQ
 
 // Delete product in cart
 Router.delete('/delete-product/:id', jwtMiddleware.verifyToken, userController.DeleteProduct);
+
+// Hủy đơn hàng
+Router.put('/order/:id', jwtMiddleware.verifyToken, userController.CancelOrder);
+
+// Xóa tất cả đơn hàng trong cart
+Router.post('/delete-all-cart', jwtMiddleware.verifyToken, userController.DeleteCart);
 
 export const userRoutes = Router;

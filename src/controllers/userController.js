@@ -13,10 +13,14 @@ import https from 'https';
 const UpdateInfo = async (req, res, next) => {
     try {
         const id = req.headers.id;
-        const content = req.body;
-        const result = await userService.UpdateInfo(id, content);
-        res.status(StatusCodes.OK).json(result);
-        next();
+        const { name, address, phone } = req.body;
+        if (!name || !address || !phone) {
+            throw new ApiError(StatusCodes.BAD_REQUEST, 'Missing something');
+        } else {
+            const result = await userService.UpdateInfo(id, name, address, phone);
+            res.status(StatusCodes.OK).json(result);
+            next();
+        }
     } catch (error) {
         next(error);
     }
@@ -104,13 +108,39 @@ const GetFavorite = async (req, res, next) => {
 const CreateOrder = async (req, res, next) => {
     try {
         const userId = req.headers.id;
-        const { total_amount, provider, payment_status } = req.body;
+        const { total_amount, provider, payment_status, created_at } = req.body;
         if (!userId || !total_amount || !payment_status || !provider) {
             throw new ApiError(StatusCodes.BAD_GATEWAY, 'Missing something');
         } else {
-            const newOrder = await userService.CreateOrder(userId, total_amount, provider, payment_status);
+            const newOrder = await userService.CreateOrder(userId, total_amount, provider, payment_status, created_at);
             res.status(StatusCodes.CREATED).json(newOrder);
             next();
+        }
+    } catch (error) {
+        next(error);
+    }
+};
+
+// Lấy ra những đơn hàng đã thanh toán
+const GetOrder = async (req, res, next) => {
+    try {
+        const userId = req.headers.id;
+        const result = await userService.GetOrder(userId);
+        res.status(StatusCodes.OK).json(result);
+    } catch (error) {
+        next(error);
+    }
+};
+
+// Lấy ra chi tiết đơn hàng
+const GetOrderDetail = async (req, res, next) => {
+    try {
+        const orderId = req.params.id;
+        if (!orderId) {
+            throw new ApiError(StatusCodes.BAD_REQUEST, 'Missing order id');
+        } else {
+            const result = await userService.GetOrderDetail(orderId);
+            res.status(StatusCodes.OK).json(result);
         }
     } catch (error) {
         next(error);
@@ -363,6 +393,33 @@ const DeleteProduct = async (req, res, next) => {
     }
 };
 
+// Hủy đơn hàng
+const CancelOrder = async (req, res, next) => {
+    try {
+        const orderId = req.params.id;
+        console.log(orderId);
+        if (!orderId) {
+            throw new ApiError(StatusCodes.BAD_REQUEST, 'Missing order id');
+        } else {
+            const result = await userService.CancelOrder(orderId);
+            res.status(StatusCodes.OK).json(result);
+        }
+    } catch (error) {
+        next(error);
+    }
+};
+
+// Xoá tất cả đơn hàng trong cart
+const DeleteCart = async (req, res, next) => {
+    try {
+        const userId = req.headers.id;
+        const result = await userService.DeleteCart(userId);
+        res.status(StatusCodes.OK).json(result);
+    } catch (error) {
+        next(error);
+    }
+};
+
 export const userController = {
     UpdateInfo,
     GetInfo,
@@ -376,4 +433,8 @@ export const userController = {
     CreateMomoPay,
     ChangeQuantity,
     DeleteProduct,
+    GetOrder,
+    GetOrderDetail,
+    CancelOrder,
+    DeleteCart,
 };

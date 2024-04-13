@@ -206,7 +206,7 @@ const updateProduct = async (req, res, next) => {
     }
 };
 
-// Count add orders
+// Get add orders
 const countOrders = async (req, res, next) => {
     try {
         const numberOrders = await adminService.countOrders();

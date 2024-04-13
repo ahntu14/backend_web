@@ -195,10 +195,10 @@ const updateProduct = async (
     }
 };
 
-// count all orders
+// Get all orders
 const countOrders = async () => {
     try {
-        const query = 'SELECT COUNT(*) AS TotalOrders FROM orders';
+        const query = 'SELECT * AS TotalOrders FROM orders';
         const [result] = await Database.query(query);
         return result;
     } catch (error) {

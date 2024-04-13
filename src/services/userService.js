@@ -3,10 +3,10 @@ import Database from '../config/mysql.js';
 import ApiError from '../utils/ApiError.js';
 
 // Update user's information
-const UpdateInfo = async (id, content) => {
+const UpdateInfo = async (id, name, address, phone) => {
     try {
-        const values = [content.address, content.phone, id];
-        const query = 'UPDATE user SET address = ?, phone = ? WHERE id = ?';
+        const values = [name, address, phone, id];
+        const query = 'UPDATE user SET name = ?, address = ?, phone = ? WHERE id = ?';
         const [result] = await Database.query(query, values);
         return result;
     } catch (error) {
@@ -85,11 +85,35 @@ const GetFavorite = async (userId) => {
 };
 
 // Create order
-const CreateOrder = async (userId, total_amount, provider, payment_status) => {
+const CreateOrder = async (userId, total_amount, provider, payment_status, created_at) => {
     try {
-        const values = [[userId, total_amount, provider, payment_status]];
-        const query = 'INSERT INTO orders (userId, total_amount, provider, payment_status) VALUES?';
+        console.log(userId, total_amount, provider, payment_status, created_at);
+        const values = [[userId, total_amount, provider, payment_status, created_at]];
+        const query = 'INSERT INTO orders (userId, total_amount, provider, payment_status, created_at) VALUES?';
         const [result] = await Database.query(query, [values]);
+        console.log(result);
+        return result;
+    } catch (error) {
+        throw error;
+    }
+};
+
+// lấy ra những đơn hàng đã đặt
+const GetOrder = async (userId) => {
+    try {
+        const query = `SELECT * FROM orders WHERE userId = '${userId}'`;
+        const [result] = await Database.query(query);
+        return result;
+    } catch (error) {
+        throw error;
+    }
+};
+
+// Lấy ra chi tiết đơn hàng
+const GetOrderDetail = async (orderId) => {
+    try {
+        const query = `SELECT * FROM order_details WHERE order_id = '${orderId}'`;
+        const [result] = await Database.query(query);
         return result;
     } catch (error) {
         throw error;
@@ -147,6 +171,34 @@ const DeleteProduct = async (userId, productId) => {
     }
 };
 
+// Hủy đơn hàng
+const CancelOrder = async (orderId) => {
+    try {
+        const [existedOrder] = await Database.query(`SELECT * FROM orders WHERE id = ${orderId}`);
+        if (existedOrder.length > 0 && existedOrder[0].payment_status === 'completed') {
+            return 'Đơn hàng đang trên đường gửi tới bạn, bạn không thể hủy đơn hàng';
+        } else if (existedOrder.length > 0 && existedOrder[0].payment_status === 'pending') {
+            const [result] = await Database.query(
+                `UPDATE orders SET payment_status = 'cancelled' WHERE id = ${orderId}`,
+            );
+            return result;
+        } else return 'Không có đơn hàng';
+    } catch (error) {
+        throw error;
+    }
+};
+
+// Xóa tất cả trong cart
+const DeleteCart = async (userId) => {
+    try {
+        const query = `DELETE FROM cart WHERE userId = ${userId}`;
+        const [result] = await Database.query(query);
+        return result;
+    } catch (error) {
+        throw error;
+    }
+};
+
 export const userService = {
     UpdateInfo,
     GetInfo,
@@ -158,4 +210,8 @@ export const userService = {
     CreateOrderDetails,
     ChangeQuantity,
     DeleteProduct,
+    GetOrder,
+    GetOrderDetail,
+    CancelOrder,
+    DeleteCart,
 };
