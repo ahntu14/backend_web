@@ -198,6 +198,14 @@ const DeleteCart = async (userId) => {
     }
 };
 
+// Lấy ra đơn hàng và chi tiết của nó
+const DetailOrder = async (userId) => {
+    try {
+    } catch (error) {
+        throw error;
+    }
+};
+
 export const userService = {
     UpdateInfo,
     GetInfo,
@@ -213,4 +221,5 @@ export const userService = {
     GetOrderDetail,
     CancelOrder,
     DeleteCart,
+    DetailOrder,
 };

@@ -403,6 +403,7 @@ const CancelOrder = async (req, res, next) => {
         } else {
             const result = await userService.CancelOrder(orderId);
             res.status(StatusCodes.OK).json(result);
+            next();
         }
     } catch (error) {
         next(error);
@@ -415,6 +416,19 @@ const DeleteCart = async (req, res, next) => {
         const userId = req.headers.id;
         const result = await userService.DeleteCart(userId);
         res.status(StatusCodes.OK).json(result);
+        next();
+    } catch (error) {
+        next(error);
+    }
+};
+
+// Lấy ra đơn hàng và chi tiết của nó
+const DetailOrder = async (req, res, next) => {
+    try {
+        const userId = req.headers.id;
+        const result = await userService.DetailOrder(userId);
+        res.status(StatusCodes.OK).json(result);
+        next();
     } catch (error) {
         next(error);
     }
@@ -437,4 +451,5 @@ export const userController = {
     GetOrderDetail,
     CancelOrder,
     DeleteCart,
+    DetailOrder,
 };

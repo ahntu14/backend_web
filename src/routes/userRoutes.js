@@ -52,4 +52,7 @@ Router.put('/order/:id', jwtMiddleware.verifyToken, userController.CancelOrder);
 // Xóa tất cả đơn hàng trong cart
 Router.post('/delete-all-cart', jwtMiddleware.verifyToken, userController.DeleteCart);
 
+// Lấy ra đơn hàng và chi tiết của nó
+Router.get('/detail-order', jwtMiddleware.verifyToken, userController.DetailOrder);
+
 export const userRoutes = Router;

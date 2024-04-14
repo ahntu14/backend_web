@@ -296,6 +296,17 @@ const getTotalAmount = async (req, res, next) => {
     }
 };
 
+// Tính số lượng đơn hàng, tổng đơn trong từng tháng
+const getPerMonth = async (req, res, next) => {
+    try {
+        const result = await adminService.getPerMonth();
+        res.status(StatusCodes.OK).json(result);
+        next();
+    } catch (error) {
+        next(error);
+    }
+};
+
 export const adminController = {
     Login,
     getAllUsers,
@@ -310,4 +321,5 @@ export const adminController = {
     getOrderStatus,
     getOrderDetail,
     getTotalAmount,
+    getPerMonth,
 };

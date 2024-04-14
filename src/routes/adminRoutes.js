@@ -43,4 +43,7 @@ Router.get('/order-detail/:id', adminController.getOrderDetail);
 // Tính tổng tiền của những đơn đã xác nhận
 Router.get('/total-amount', adminController.getTotalAmount);
 
+// Lấy ra số lượng đơn hàng, tổng tiền trong từng tháng
+Router.get('/total-per-month', adminController.getPerMonth);
+
 export const adminRoutes = Router;

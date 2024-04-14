@@ -253,12 +253,21 @@ const getOrderDetail = async (orderId) => {
 // Tính tổng tiền của các đơn đã xác nhận
 const getTotalAmount = async () => {
     try {
-        const usd = 250000;
         const query = `SELECT provider, SUM(total_amount) AS total_amount_sum FROM orders WHERE payment_status = 'completed' GROUP BY provider;`;
         const result = Database.query(query);
-        const arr = Object.entries(result);
-        console.log(arr);
 
+        return result;
+    } catch (error) {
+        throw error;
+    }
+};
+
+// Tính số lượng đơn hàng, tổng đơn trong từng tháng
+const getPerMonth = async () => {
+    try {
+        const query =
+            'SELECT  YEAR(created_at) AS year, MONTH(created_at) AS month, COUNT(*) AS total_orders, SUM(total_amount) AS total_amount FROM  orders WHERE YEAR(created_at) = 2024 GROUP BY YEAR(created_at), MONTH(created_at);';
+        const result = await Database.query(query);
         return result;
     } catch (error) {
         throw error;
@@ -279,4 +288,5 @@ export const adminService = {
     getOrderStatus,
     getOrderDetail,
     getTotalAmount,
+    getPerMonth,
 };
