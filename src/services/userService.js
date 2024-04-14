@@ -201,6 +201,9 @@ const DeleteCart = async (userId) => {
 // Lấy ra đơn hàng và chi tiết của nó
 const DetailOrder = async (userId) => {
     try {
+        const query = `SELECT  o.total_amount, o.created_at, p.name, p.imageUrl, od.quantity FROM orders o JOIN order_details od ON o.id = od.order_id JOIN product p ON od.productId = p.id WHERE o.userId = ${userId}`;
+        const [result] = await Database.query(query);
+        return result;
     } catch (error) {
         throw error;
     }

@@ -198,7 +198,7 @@ const updateProduct = async (
 // Lấy ra tất cả đơn hàng
 const countOrders = async () => {
     try {
-        const query = 'SELECT * AS TotalOrders FROM orders';
+        const query = 'SELECT * FROM orders';
         const [result] = await Database.query(query);
         return result;
     } catch (error) {
