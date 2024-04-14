@@ -269,6 +269,33 @@ const getOrderStatus = async (req, res, next) => {
     }
 };
 
+// Lấy ra chi tiết đơn hàng
+const getOrderDetail = async (req, res, next) => {
+    try {
+        const orderId = req.params.id;
+        if (!orderId) {
+            throw new ApiError(StatusCodes.BAD_REQUEST, 'Missing order id ');
+        } else {
+            const result = await adminService.getOrderDetail(orderId);
+            res.status(StatusCodes.OK).json(result);
+            next();
+        }
+    } catch (error) {
+        next(error);
+    }
+};
+
+// Tính tổng tiền của các đơn đã xác nhận
+const getTotalAmount = async (req, res, next) => {
+    try {
+        const result = await adminService.getTotalAmount();
+        res.status(StatusCodes.OK).json(result);
+        next();
+    } catch (error) {
+        next(error);
+    }
+};
+
 export const adminController = {
     Login,
     getAllUsers,
@@ -281,4 +308,6 @@ export const adminController = {
     countOrderPayment,
     updateOrderStatus,
     getOrderStatus,
+    getOrderDetail,
+    getTotalAmount,
 };

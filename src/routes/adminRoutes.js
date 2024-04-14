@@ -37,4 +37,10 @@ Router.put('/order-status', adminController.updateOrderStatus);
 // Get orders with payment status
 Router.get('/order-status', adminController.getOrderStatus);
 
+// Lấy ra chi tiết đơn hàng
+Router.get('/order-detail/:id', adminController.getOrderDetail);
+
+// Tính tổng tiền của những đơn đã xác nhận
+Router.get('/total-amount', adminController.getTotalAmount);
+
 export const adminRoutes = Router;

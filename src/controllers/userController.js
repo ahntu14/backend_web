@@ -108,11 +108,11 @@ const GetFavorite = async (req, res, next) => {
 const CreateOrder = async (req, res, next) => {
     try {
         const userId = req.headers.id;
-        const { total_amount, provider, payment_status, created_at } = req.body;
+        const { total_amount, provider, payment_status } = req.body;
         if (!userId || !total_amount || !payment_status || !provider) {
             throw new ApiError(StatusCodes.BAD_GATEWAY, 'Missing something');
         } else {
-            const newOrder = await userService.CreateOrder(userId, total_amount, provider, payment_status, created_at);
+            const newOrder = await userService.CreateOrder(userId, total_amount, provider, payment_status);
             res.status(StatusCodes.CREATED).json(newOrder);
             next();
         }

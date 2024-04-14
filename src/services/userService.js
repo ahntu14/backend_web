@@ -85,13 +85,12 @@ const GetFavorite = async (userId) => {
 };
 
 // Create order
-const CreateOrder = async (userId, total_amount, provider, payment_status, created_at) => {
+const CreateOrder = async (userId, total_amount, provider, payment_status) => {
     try {
-        console.log(userId, total_amount, provider, payment_status, created_at);
+        let created_at = new Date();
         const values = [[userId, total_amount, provider, payment_status, created_at]];
         const query = 'INSERT INTO orders (userId, total_amount, provider, payment_status, created_at) VALUES?';
         const [result] = await Database.query(query, [values]);
-        console.log(result);
         return result;
     } catch (error) {
         throw error;

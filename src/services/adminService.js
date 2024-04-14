@@ -195,7 +195,7 @@ const updateProduct = async (
     }
 };
 
-// Get all orders
+// Lấy ra tất cả đơn hàng
 const countOrders = async () => {
     try {
         const query = 'SELECT * AS TotalOrders FROM orders';
@@ -206,7 +206,7 @@ const countOrders = async () => {
     }
 };
 
-// Count orders with payment method
+// Lấy ra tất cả đơn hàng theo phương thức thanh toán
 const countOrderPayment = async (provider) => {
     try {
         const query = `SELECT * FROM orders where provider = '${provider}'`;
@@ -217,7 +217,7 @@ const countOrderPayment = async (provider) => {
     }
 };
 
-// Update status of order
+// Thay đổi trạng thái đơn hàng
 const updateOrderStatus = async (status, orderId) => {
     try {
         const query = `UPDATE orders SET payment_status = '${status}' WHERE id = ${orderId}`;
@@ -228,10 +228,37 @@ const updateOrderStatus = async (status, orderId) => {
     }
 };
 
+// Lấy tất cả đơn hàng theo trạng thái
 const getOrderStatus = async (status) => {
     try {
         const query = `SELECT * FROM orders where payment_status = '${status}'`;
         const [result] = await Database.query(query);
+        return result;
+    } catch (error) {
+        throw error;
+    }
+};
+
+// Lấy ra chi tiết đơn hàng
+const getOrderDetail = async (orderId) => {
+    try {
+        const query = `SELECT * FROM orders WHERE id = '${orderId}'`;
+        const [result] = await Database.query(query);
+        return result;
+    } catch (error) {
+        throw error;
+    }
+};
+
+// Tính tổng tiền của các đơn đã xác nhận
+const getTotalAmount = async () => {
+    try {
+        const usd = 250000;
+        const query = `SELECT provider, SUM(total_amount) AS total_amount_sum FROM orders WHERE payment_status = 'completed' GROUP BY provider;`;
+        const result = Database.query(query);
+        const arr = Object.entries(result);
+        console.log(arr);
+
         return result;
     } catch (error) {
         throw error;
@@ -250,4 +277,6 @@ export const adminService = {
     countOrderPayment,
     updateOrderStatus,
     getOrderStatus,
+    getOrderDetail,
+    getTotalAmount,
 };
