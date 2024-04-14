@@ -176,7 +176,7 @@ const CreatePayment = async (req, res, next) => {
             req.socket.remoteAddress ||
             req.connection.socket.remoteAddress;
 
-        let returnUrl = 'http://localhost:3000/cart';
+        let returnUrl = 'http://localhost:3000/order-return';
 
         let date = new Date();
 
@@ -256,7 +256,7 @@ const CreateMomoPay = async (req, res, next) => {
         var secretKey = 'K951B6PE1waDMi640xX08PD3vg6EkVlz';
         var orderInfo = 'pay with MoMo';
         var partnerCode = 'MOMO';
-        var redirectUrl = 'http://localhost:3000/cart';
+        var redirectUrl = 'http://localhost:3000/order-return';
         var ipnUrl = 'http://localhost:3000/cart';
         var requestType = 'payWithMethod';
         var amount = total;

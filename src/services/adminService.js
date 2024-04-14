@@ -198,7 +198,8 @@ const updateProduct = async (
 // Lấy ra tất cả đơn hàng
 const countOrders = async () => {
     try {
-        const query = 'SELECT * FROM orders';
+        const query =
+            'SELECT o.id, u.name, o.total_amount, o.provider, o.payment_status, o.created_at FROM orders AS o JOIN user AS u ON o.userId = u.id';
         const [result] = await Database.query(query);
         return result;
     } catch (error) {
