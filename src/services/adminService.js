@@ -210,8 +210,8 @@ const countOrders = async () => {
 // Lấy ra tất cả đơn hàng theo phương thức thanh toán
 const countOrderPayment = async (provider) => {
     try {
-        const query = `SELECT * FROM orders where provider = '${provider}'`;
-        const [result] = await Database.query(query);
+        const query = `SELECT o.id, u.name, o.total_amount, o.provider, o.payment_status, o.created_at FROM orders AS o JOIN user AS u ON o.userId = u.id WHERE provider = ?`;
+        const [result] = await Database.query(query, [provider]);
         return result;
     } catch (error) {
         throw error;
@@ -221,9 +221,23 @@ const countOrderPayment = async (provider) => {
 // Thay đổi trạng thái đơn hàng
 const updateOrderStatus = async (status, orderId) => {
     try {
-        const query = `UPDATE orders SET payment_status = '${status}' WHERE id = ${orderId}`;
-        const [result] = await Database.query(query);
-        return result;
+        if (status === 'completed') {
+            const query = `UPDATE orders SET payment_status = '${status}' WHERE id = ${orderId}`;
+            const [result] = await Database.query(query);
+            return result;
+        } else if (status === 'cancelled') {
+            const query = `UPDATE orders SET payment_status = '${status}' WHERE id = ${orderId}`;
+            const [result] = await Database.query(query);
+            const [products] = await Database.query(`SELECT * FROM order_details WHERE order_id = ${orderId}`);
+            // console.log(products[0]);
+            await products.map(async (product) => {
+                let [pro] = await Database.query(`SELECT * FROM product WHERE id = ?`, [product.productId]);
+                let newQuantity = parseInt(product.quantity) + parseInt(pro[0].quantity);
+                await Database.query(`UPDATE product SET quantity = ? WHERE id = ?;`, [newQuantity, product.productId]);
+            });
+
+            return result;
+        }
     } catch (error) {
         throw error;
     }
@@ -232,8 +246,8 @@ const updateOrderStatus = async (status, orderId) => {
 // Lấy tất cả đơn hàng theo trạng thái
 const getOrderStatus = async (status) => {
     try {
-        const query = `SELECT * FROM orders where payment_status = '${status}'`;
-        const [result] = await Database.query(query);
+        const query = `SELECT o.id, u.name, o.total_amount, o.provider, o.payment_status, o.created_at FROM orders AS o JOIN user AS u ON o.userId = u.id WHERE payment_status = ?`;
+        const [result] = await Database.query(query, [status]);
         return result;
     } catch (error) {
         throw error;
@@ -243,7 +257,18 @@ const getOrderStatus = async (status) => {
 // Lấy ra chi tiết đơn hàng
 const getOrderDetail = async (orderId) => {
     try {
-        const query = `SELECT * FROM orders WHERE id = '${orderId}'`;
+        const query = `SELECT 
+    o.id,
+    SUM(o.total_amount) AS total_amount,
+    o.created_at AS order_date,
+    JSON_ARRAYAGG(
+        JSON_OBJECT('name', p.name, 'imageUrl', p.imageUrl, 'quantity', od.quantity)
+    ) AS order_details
+    FROM orders o 
+    JOIN order_details od ON o.id = od.order_id 
+    JOIN product p ON od.productId = p.id 
+    WHERE o.id = ${orderId}
+    GROUP BY o.id, o.created_at;`;
         const [result] = await Database.query(query);
         return result;
     } catch (error) {
@@ -267,7 +292,7 @@ const getTotalAmount = async () => {
 const getPerMonth = async () => {
     try {
         const query =
-            'SELECT  YEAR(created_at) AS year, MONTH(created_at) AS month, COUNT(*) AS total_orders, SUM(total_amount) AS total_amount FROM  orders WHERE YEAR(created_at) = 2024 GROUP BY YEAR(created_at), MONTH(created_at);';
+            'SELECT YEAR(created_at) AS year, MONTH(created_at) AS month, COUNT(*) AS total_orders, SUM(total_amount) AS total_amount FROM  orders WHERE YEAR(created_at) = 2024 GROUP BY YEAR(created_at), MONTH(created_at);';
         const result = await Database.query(query);
         return result;
     } catch (error) {

@@ -123,6 +123,9 @@ const GetOrderDetail = async (orderId) => {
 const CreateOrderDetails = async (order_id, productId, quantity, price) => {
     try {
         const values = [[order_id, productId, quantity, price]];
+        const [product] = await Database.query(`SELECT * FROM product WHERE id =?`, [productId]);
+        let newQuantity = quantity + parseInt(product[0].quantity);
+        await Database.query(`UPDATE product SET quantity = ? WHERE id = ?`, [newQuantity, productId]);
         const query = 'INSERT INTO order_details (order_id, productId, quantity, price) VALUES?';
         const [result] = await Database.query(query, [values]);
         return result;
