@@ -205,18 +205,30 @@ const DeleteCart = async (userId) => {
 const DetailOrder = async (userId) => {
     try {
         const query = `SELECT 
-    o.id,
-    SUM(o.total_amount) AS total_amount,
-    o.created_at AS order_date,
-    JSON_ARRAYAGG(
-        JSON_OBJECT('name', p.name, 'imageUrl', p.imageUrl, 'quantity', od.quantity)
-    ) AS order_details
-    FROM orders o 
-    JOIN order_details od ON o.id = od.order_id 
-    JOIN product p ON od.productId = p.id 
-    WHERE o.userId = ${userId}
-    GROUP BY o.id, o.created_at;`;
+            o.id,
+            SUM(o.total_amount) AS total_amount,
+            o.created_at AS order_date,
+            o.payment_status as status,
+            CONCAT(
+                '[',
+                GROUP_CONCAT(
+                    JSON_OBJECT('name', p.name, 'imageUrl', p.imageUrl, 'quantity', od.quantity, 'oldPrice', p.oldPrice, 'newPrice', p.newPrice)
+                    SEPARATOR ','
+                ),
+                ']'
+            ) AS order_details
+        FROM orders o 
+        JOIN order_details od ON o.id = od.order_id 
+        JOIN product p ON od.productId = p.id 
+        WHERE o.userId = ${userId}
+        GROUP BY o.id, o.created_at;
+        `;
         const [result] = await Database.query(query);
+
+        result.forEach((row) => {
+            row.order_details = JSON.parse(row.order_details);
+        });
+
         return result;
     } catch (error) {
         throw error;

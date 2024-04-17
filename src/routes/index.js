@@ -7,7 +7,7 @@ import { publicRoutes } from './publicRoutes.js';
 const Router = express.Router();
 
 // User routes
-Router.use('/user', userRoutes);
+Router.use('user', userRoutes);
 
 // Auth routes
 Router.use('/auth', authRoutes);

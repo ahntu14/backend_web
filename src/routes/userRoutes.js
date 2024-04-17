@@ -55,4 +55,6 @@ Router.post('/delete-all-cart', jwtMiddleware.verifyToken, userController.Delete
 // Lấy ra đơn hàng và chi tiết của nó
 Router.get('/detail-order', jwtMiddleware.verifyToken, userController.DetailOrder);
 
+Router.get('/vnpay_ipn', userController.ReturnUrl);
+
 export const userRoutes = Router;

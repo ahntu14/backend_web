@@ -104,6 +104,22 @@ const GetFavorite = async (req, res, next) => {
     }
 };
 
+// Create order details
+const CreateOrderDetails = async (req, res, next) => {
+    try {
+        const { order_id, productId, quantity, price } = req.body;
+        if (!order_id || !productId || !quantity || !price) {
+            throw new ApiError(StatusCodes.CONFLICT, 'Missing something');
+        } else {
+            const orderDetail = await userService.CreateOrderDetails(order_id, productId, quantity, price);
+            res.status(StatusCodes.CREATED).json(orderDetail);
+            next();
+        }
+    } catch (error) {
+        next(error);
+    }
+};
+
 // Create order
 const CreateOrder = async (req, res, next) => {
     try {
@@ -141,22 +157,6 @@ const GetOrderDetail = async (req, res, next) => {
         } else {
             const result = await userService.GetOrderDetail(orderId);
             res.status(StatusCodes.OK).json(result);
-        }
-    } catch (error) {
-        next(error);
-    }
-};
-
-// Create order details
-const CreateOrderDetails = async (req, res, next) => {
-    try {
-        const { order_id, productId, quantity, price } = req.body;
-        if (!order_id || !productId || !quantity || !price) {
-            throw new ApiError(StatusCodes.CONFLICT, 'Missing something');
-        } else {
-            const orderDetail = await userService.CreateOrderDetails(order_id, productId, quantity, price);
-            res.status(StatusCodes.CREATED).json(orderDetail);
-            next();
         }
     } catch (error) {
         next(error);
@@ -434,6 +434,35 @@ const DetailOrder = async (req, res, next) => {
     }
 };
 
+// Return url
+const ReturnUrl = async (req, res, next) => {
+    try {
+        var vnp_Params = req.query;
+        var secureHash = vnp_Params['vnp_SecureHash'];
+
+        delete vnp_Params['vnp_SecureHash'];
+        delete vnp_Params['vnp_SecureHashType'];
+
+        vnp_Params = sortObject(vnp_Params);
+        let secretKey = 'PVUDMVKBWORXCEUKFZZEZBKWZZNCTDNW';
+        var signData = QueryString.stringify(vnp_Params, { encode: false });
+        var hmac = crypto.createHmac('sha512', secretKey);
+        var signed = hmac.update(new Buffer(signData, 'utf-8')).digest('hex');
+
+        if (secureHash === signed) {
+            console.log(1);
+            var orderId = vnp_Params['vnp_TxnRef'];
+            var rspCode = vnp_Params['vnp_ResponseCode'];
+            res.status(200).json({ RspCode: '00', Message: 'success' });
+        } else {
+            console.log(0);
+            res.status(200).json({ RspCode: '97', Message: 'Fail checksum' });
+        }
+    } catch (error) {
+        next(error);
+    }
+};
+
 export const userController = {
     UpdateInfo,
     GetInfo,
@@ -452,4 +481,5 @@ export const userController = {
     CancelOrder,
     DeleteCart,
     DetailOrder,
+    ReturnUrl,
 };
