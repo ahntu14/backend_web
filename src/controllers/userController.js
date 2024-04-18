@@ -420,7 +420,7 @@ const CreatePayment = async (req, res, next) => {
 
         var signData = QueryString.stringify(vnp_Params, { encode: false });
         var hmac = crypto.createHmac('sha512', secretKey);
-        var signed = hmac.update(new Buffer.from(signData, 'utf-8')).digest('hex');
+        var signed = hmac.update(Buffer.from(signData, 'utf-8')).digest('hex');
         vnp_Params['vnp_SecureHash'] = signed;
         vnpUrl += '?' + QueryString.stringify(vnp_Params, { encode: false });
 
@@ -466,10 +466,10 @@ const ReturnUrl = async (req, res, next) => {
 
         var signData = QueryString.stringify(vnp_Params, { encode: false });
         var hmac = crypto.createHmac('sha512', secretKey);
-        var signed = hmac.update(new Buffer.from(signData, 'utf-8')).digest('hex');
+        var signed = hmac.update(Buffer.from(signData, 'utf-8')).digest('hex');
 
         if (responseCode === '00' && secureHash === signed) {
-            let order = await userService.CreateOrder(userId, totalPrice, 'paypal', 'pending');
+            let order = await userService.CreateOrder(userId, totalPrice, 'vnpay', 'pending');
 
             for (const product of allProducts) {
                 await userService.CreateOrderDetails(
