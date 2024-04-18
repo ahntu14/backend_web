@@ -8,6 +8,7 @@ import md5 from 'md5';
 import config from 'config';
 import dateFormat from 'dateformat';
 import https from 'https';
+import { log } from 'console';
 
 //Update user's information
 const UpdateInfo = async (req, res, next) => {
@@ -296,10 +297,10 @@ const DeleteProduct = async (req, res, next) => {
     try {
         const userId = req.headers.id;
         const productId = req.params.id;
-        if (!productId[1]) {
+        if (!productId) {
             throw new ApiError(StatusCodes.BAD_REQUEST, 'Missing id');
         } else {
-            const result = await userService.DeleteProduct(userId, productId[1]);
+            const result = await userService.DeleteProduct(userId, productId);
             res.status(StatusCodes.OK).json(result);
             next();
         }
@@ -312,7 +313,7 @@ const DeleteProduct = async (req, res, next) => {
 const CancelOrder = async (req, res, next) => {
     try {
         const orderId = req.params.id;
-        console.log(orderId);
+
         if (!orderId) {
             throw new ApiError(StatusCodes.BAD_REQUEST, 'Missing order id');
         } else {
@@ -356,9 +357,9 @@ const CreatePayment = async (req, res, next) => {
         const totalPrice = allProducts.reduce((total, product) => {
             return total + product.newPrice * product.productQuantity;
         }, 0);
-        console.log(allProducts);
-        let tmnCode = 'V9X72QPI';
-        let secretKey = 'PVUDMVKBWORXCEUKFZZEZBKWZZNCTDNW';
+
+        let tmnCode = 'IFU403F1';
+        let secretKey = 'MVQREENUPMSOYVBJWPAXHZGCWBGTLMWF';
         let vnpUrl = 'https://sandbox.vnpayment.vn/paymentv2/vpcpay.html';
 
         let ipAddr =
@@ -420,7 +421,7 @@ const CreatePayment = async (req, res, next) => {
 
         let signData = QueryString.stringify(vnp_Params, { encode: false });
         let hmac = crypto.createHmac('sha512', secretKey);
-        let signed = hmac.update(new Buffer.from(signData, 'utf-8')).digest('hex');
+        let signed = hmac.update(Buffer.from(signData, 'utf-8')).digest('hex');
         vnp_Params['vnp_SecureHash'] = signed;
         vnpUrl += '?' + QueryString.stringify(vnp_Params, { encode: false });
 
@@ -444,13 +445,29 @@ const ReturnUrl = async (req, res, next) => {
 
         delete vnp_Params['vnp_SecureHash'];
         delete vnp_Params['vnp_SecureHashType'];
-
+        function sortObject(obj) {
+            let sorted = {};
+            let str = [];
+            let key;
+            for (key in obj) {
+                if (obj.hasOwnProperty(key)) {
+                    str.push(encodeURIComponent(key));
+                }
+            }
+            str.sort();
+            for (key = 0; key < str.length; key++) {
+                sorted[str[key]] = encodeURIComponent(obj[str[key]]).replace(/%20/g, '+');
+            }
+            return sorted;
+        }
         vnp_Params = sortObject(vnp_Params);
-        let secretKey = 'PVUDMVKBWORXCEUKFZZEZBKWZZNCTDNW';
+        let secretKey = 'MVQREENUPMSOYVBJWPAXHZGCWBGTLMWF';
         var signData = QueryString.stringify(vnp_Params, { encode: false });
         var hmac = crypto.createHmac('sha512', secretKey);
-        var signed = hmac.update(new Buffer(signData, 'utf-8')).digest('hex');
+        var signed = hmac.update(Buffer.from(signData, 'utf-8')).digest('hex');
 
+        console.log(secureHash);
+        console.log(signed);
         if (responseCode === '00' && secureHash === signed) {
             let order = await userService.CreateOrder(userId, totalPrice, 'paypal', 'pending');
 

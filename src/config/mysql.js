@@ -6,7 +6,7 @@ const Database = mysql
         host: 'localhost',
         database: env.DATABASE_NAME,
         user: 'root',
-        password: '12345678',
+        password: '',
     })
     .promise();
 

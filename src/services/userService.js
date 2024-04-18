@@ -122,6 +122,7 @@ const GetOrderDetail = async (orderId) => {
 // Create order details
 const CreateOrderDetails = async (order_id, productId, quantity, price) => {
     try {
+        console.log('CreateOrderDetails');
         const values = [[order_id, productId, quantity, price]];
         const [product] = await Database.query(`SELECT * FROM product WHERE id =?`, [productId]);
         let newQuantity = parseInt(product[0].quantity) - quantity;
