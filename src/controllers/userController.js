@@ -163,91 +163,6 @@ const GetOrderDetail = async (req, res, next) => {
     }
 };
 
-const CreatePayment = async (req, res, next) => {
-    try {
-        const { total } = req.body;
-        let tmnCode = 'V9X72QPI';
-        let secretKey = 'PVUDMVKBWORXCEUKFZZEZBKWZZNCTDNW';
-        let vnpUrl = 'https://sandbox.vnpayment.vn/paymentv2/vpcpay.html';
-
-        let ipAddr =
-            req.headers['x-forwarded-for'] ||
-            req.connection.remoteAddress ||
-            req.socket.remoteAddress ||
-            req.connection.socket.remoteAddress;
-
-        let returnUrl = 'http://localhost:3000/order-return';
-
-        let date = new Date();
-
-        let createDate = dateFormat(date, 'yyyymmddHHmmss');
-        let orderId = dateFormat(date, 'HHmmss');
-        let amount = total;
-        let bankCode = 'ncb';
-
-        let orderInfo = 'Thanh toan tien';
-        let orderType = 'billpayment';
-        let locale = 'vn';
-        if (locale === null || locale === '') {
-            locale = 'vn';
-        }
-        let currCode = 'VND';
-        let vnp_Params = {};
-        vnp_Params['vnp_Version'] = '2.1.0';
-        vnp_Params['vnp_Command'] = 'pay';
-        vnp_Params['vnp_TmnCode'] = tmnCode;
-        // vnp_Params['vnp_Merchant'] = ''
-        vnp_Params['vnp_Locale'] = locale;
-        vnp_Params['vnp_CurrCode'] = currCode;
-        vnp_Params['vnp_TxnRef'] = orderId;
-        vnp_Params['vnp_OrderInfo'] = orderInfo;
-        vnp_Params['vnp_OrderType'] = orderType;
-        vnp_Params['vnp_Amount'] = amount * 100;
-        vnp_Params['vnp_ReturnUrl'] = returnUrl;
-        vnp_Params['vnp_IpAddr'] = ipAddr;
-        vnp_Params['vnp_CreateDate'] = createDate;
-        if (bankCode !== null && bankCode !== '') {
-            vnp_Params['vnp_BankCode'] = bankCode;
-        }
-        function sortObject(obj) {
-            let sorted = {};
-            let str = [];
-            let key;
-            for (key in obj) {
-                if (obj.hasOwnProperty(key)) {
-                    str.push(encodeURIComponent(key));
-                }
-            }
-            str.sort();
-            for (key = 0; key < str.length; key++) {
-                sorted[str[key]] = encodeURIComponent(obj[str[key]]).replace(/%20/g, '+');
-            }
-            return sorted;
-        }
-
-        vnp_Params = sortObject(vnp_Params);
-
-        //Build Hash data và QueryString với phiên bản cũ 2.0.0, 2.0.1:
-        // let signData = secretKey + QueryString.stringify(vnp_Params, { encode: false });
-
-        // let secureHash = md5(signData);
-        // vnp_Params['vnp_SecureHashType'] = 'MD5';
-        // vnp_Params['vnp_SecureHash'] = secureHash;
-        // vnpUrl += '?' + QueryString.stringify(vnp_Params, { encode: true });
-        // res.redirect(vnpUrl);
-
-        let signData = QueryString.stringify(vnp_Params, { encode: false });
-        let hmac = crypto.createHmac('sha512', secretKey);
-        let signed = hmac.update(new Buffer(signData, 'utf-8')).digest('hex');
-        vnp_Params['vnp_SecureHash'] = signed;
-        vnpUrl += '?' + QueryString.stringify(vnp_Params, { encode: false });
-
-        res.status(200).json(vnpUrl);
-    } catch (error) {
-        next(error);
-    }
-};
-
 // Momo pay
 const CreateMomoPay = async (req, res, next) => {
     try {
@@ -434,11 +349,98 @@ const DetailOrder = async (req, res, next) => {
     }
 };
 
+const CreatePayment = async (req, res, next) => {
+    try {
+        const userId = req.headers.id;
+        const allProducts = await userService.GetCart(userId);
+        const totalPrice = allProducts.reduce((total, product) => {
+            return total + product.newPrice * product.productQuantity;
+        }, 0);
+        console.log(allProducts);
+        let tmnCode = 'V9X72QPI';
+        let secretKey = 'PVUDMVKBWORXCEUKFZZEZBKWZZNCTDNW';
+        let vnpUrl = 'https://sandbox.vnpayment.vn/paymentv2/vpcpay.html';
+
+        let ipAddr =
+            req.headers['x-forwarded-for'] ||
+            req.connection.remoteAddress ||
+            req.socket.remoteAddress ||
+            req.connection.socket.remoteAddress;
+
+        let returnUrl = 'http://localhost:3000/order-return';
+
+        let date = new Date();
+
+        let createDate = dateFormat(date, 'yyyymmddHHmmss');
+        let orderId = dateFormat(date, 'HHmmss');
+        let amount = totalPrice;
+        let bankCode = 'ncb';
+
+        let orderInfo = `${userId}`;
+        let orderType = 'billpayment';
+        let locale = 'vn';
+        if (locale === null || locale === '') {
+            locale = 'vn';
+        }
+        let currCode = 'VND';
+        let vnp_Params = {};
+        vnp_Params['vnp_Version'] = '2.1.0';
+        vnp_Params['vnp_Command'] = 'pay';
+        vnp_Params['vnp_TmnCode'] = tmnCode;
+        // vnp_Params['vnp_Merchant'] = ''
+        vnp_Params['vnp_Locale'] = locale;
+        vnp_Params['vnp_CurrCode'] = currCode;
+        vnp_Params['vnp_TxnRef'] = orderId;
+        vnp_Params['vnp_OrderInfo'] = orderInfo;
+        vnp_Params['vnp_OrderType'] = orderType;
+        vnp_Params['vnp_Amount'] = amount * 100;
+        vnp_Params['vnp_ReturnUrl'] = returnUrl;
+        vnp_Params['vnp_IpAddr'] = ipAddr;
+        vnp_Params['vnp_CreateDate'] = createDate;
+        if (bankCode !== null && bankCode !== '') {
+            vnp_Params['vnp_BankCode'] = bankCode;
+        }
+        function sortObject(obj) {
+            let sorted = {};
+            let str = [];
+            let key;
+            for (key in obj) {
+                if (obj.hasOwnProperty(key)) {
+                    str.push(encodeURIComponent(key));
+                }
+            }
+            str.sort();
+            for (key = 0; key < str.length; key++) {
+                sorted[str[key]] = encodeURIComponent(obj[str[key]]).replace(/%20/g, '+');
+            }
+            return sorted;
+        }
+
+        vnp_Params = sortObject(vnp_Params);
+
+        let signData = QueryString.stringify(vnp_Params, { encode: false });
+        let hmac = crypto.createHmac('sha512', secretKey);
+        let signed = hmac.update(new Buffer.from(signData, 'utf-8')).digest('hex');
+        vnp_Params['vnp_SecureHash'] = signed;
+        vnpUrl += '?' + QueryString.stringify(vnp_Params, { encode: false });
+
+        res.status(200).json(vnpUrl);
+    } catch (error) {
+        next(error);
+    }
+};
+
 // Return url
 const ReturnUrl = async (req, res, next) => {
     try {
         var vnp_Params = req.query;
         var secureHash = vnp_Params['vnp_SecureHash'];
+        let userId = parseInt(vnp_Params['vnp_OrderInfo']);
+        let responseCode = vnp_Params['vnp_ResponseCode'];
+        const allProducts = await userService.GetCart(parseInt(userId));
+        const totalPrice = allProducts.reduce((total, product) => {
+            return total + product.newPrice * product.productQuantity;
+        }, 0);
 
         delete vnp_Params['vnp_SecureHash'];
         delete vnp_Params['vnp_SecureHashType'];
@@ -449,13 +451,22 @@ const ReturnUrl = async (req, res, next) => {
         var hmac = crypto.createHmac('sha512', secretKey);
         var signed = hmac.update(new Buffer(signData, 'utf-8')).digest('hex');
 
-        if (secureHash === signed) {
-            console.log(1);
+        if (responseCode === '00' && secureHash === signed) {
+            let order = await userService.CreateOrder(userId, totalPrice, 'paypal', 'pending');
+
+            for (const product of allProducts) {
+                await userService.CreateOrderDetails(
+                    order.insertId,
+                    product.id,
+                    product.productQuantity,
+                    product.newPrice,
+                );
+            }
+
             var orderId = vnp_Params['vnp_TxnRef'];
             var rspCode = vnp_Params['vnp_ResponseCode'];
             res.status(200).json({ RspCode: '00', Message: 'success' });
         } else {
-            console.log(0);
             res.status(200).json({ RspCode: '97', Message: 'Fail checksum' });
         }
     } catch (error) {

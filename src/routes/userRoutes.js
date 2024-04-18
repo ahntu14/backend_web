@@ -35,7 +35,7 @@ Router.post('/order', jwtMiddleware.verifyToken, userController.CreateOrder);
 Router.post('/order-detail', jwtMiddleware.verifyToken, userController.CreateOrderDetails);
 
 // VN Pay
-Router.post('/payment', userController.CreatePayment);
+Router.get('/payment', jwtMiddleware.verifyToken, userController.CreatePayment);
 
 // Momo payment
 Router.post('/momo-pay', userController.CreateMomoPay);
