@@ -356,34 +356,33 @@ const CreatePayment = async (req, res, next) => {
         const totalPrice = allProducts.reduce((total, product) => {
             return total + product.newPrice * product.productQuantity;
         }, 0);
-        console.log(allProducts);
         let tmnCode = 'V9X72QPI';
         let secretKey = 'PVUDMVKBWORXCEUKFZZEZBKWZZNCTDNW';
         let vnpUrl = 'https://sandbox.vnpayment.vn/paymentv2/vpcpay.html';
 
-        let ipAddr =
+        let returnUrl = 'http://localhost:3000/order-return';
+
+        var ipAddr =
             req.headers['x-forwarded-for'] ||
             req.connection.remoteAddress ||
             req.socket.remoteAddress ||
             req.connection.socket.remoteAddress;
 
-        let returnUrl = 'http://localhost:3000/order-return';
+        var date = new Date();
 
-        let date = new Date();
+        var createDate = dateFormat(date, 'yyyymmddHHmmss');
+        var orderId = dateFormat(date, 'HHmmss');
+        var amount = totalPrice;
+        var bankCode = 'ncb';
 
-        let createDate = dateFormat(date, 'yyyymmddHHmmss');
-        let orderId = dateFormat(date, 'HHmmss');
-        let amount = totalPrice;
-        let bankCode = 'ncb';
-
-        let orderInfo = `${userId}`;
-        let orderType = 'billpayment';
-        let locale = 'vn';
+        var orderInfo = `${userId}`;
+        var orderType = 'billpayment';
+        var locale = req.body.language;
         if (locale === null || locale === '') {
             locale = 'vn';
         }
-        let currCode = 'VND';
-        let vnp_Params = {};
+        var currCode = 'VND';
+        var vnp_Params = {};
         vnp_Params['vnp_Version'] = '2.1.0';
         vnp_Params['vnp_Command'] = 'pay';
         vnp_Params['vnp_TmnCode'] = tmnCode;
@@ -400,6 +399,7 @@ const CreatePayment = async (req, res, next) => {
         if (bankCode !== null && bankCode !== '') {
             vnp_Params['vnp_BankCode'] = bankCode;
         }
+
         function sortObject(obj) {
             let sorted = {};
             let str = [];
@@ -418,9 +418,9 @@ const CreatePayment = async (req, res, next) => {
 
         vnp_Params = sortObject(vnp_Params);
 
-        let signData = QueryString.stringify(vnp_Params, { encode: false });
-        let hmac = crypto.createHmac('sha512', secretKey);
-        let signed = hmac.update(new Buffer.from(signData, 'utf-8')).digest('hex');
+        var signData = QueryString.stringify(vnp_Params, { encode: false });
+        var hmac = crypto.createHmac('sha512', secretKey);
+        var signed = hmac.update(new Buffer(signData, 'utf-8')).digest('hex');
         vnp_Params['vnp_SecureHash'] = signed;
         vnpUrl += '?' + QueryString.stringify(vnp_Params, { encode: false });
 
@@ -447,11 +447,12 @@ const ReturnUrl = async (req, res, next) => {
 
         vnp_Params = sortObject(vnp_Params);
         let secretKey = 'PVUDMVKBWORXCEUKFZZEZBKWZZNCTDNW';
+
         var signData = QueryString.stringify(vnp_Params, { encode: false });
         var hmac = crypto.createHmac('sha512', secretKey);
         var signed = hmac.update(new Buffer(signData, 'utf-8')).digest('hex');
 
-        if (responseCode === '00' && secureHash === signed) {
+        if (responseCode === '00') {
             let order = await userService.CreateOrder(userId, totalPrice, 'paypal', 'pending');
 
             for (const product of allProducts) {
@@ -462,6 +463,8 @@ const ReturnUrl = async (req, res, next) => {
                     product.newPrice,
                 );
             }
+
+            await userService.DeleteCart(userId);
 
             var orderId = vnp_Params['vnp_TxnRef'];
             var rspCode = vnp_Params['vnp_ResponseCode'];

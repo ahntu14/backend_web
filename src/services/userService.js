@@ -88,6 +88,9 @@ const GetFavorite = async (userId) => {
 const CreateOrder = async (userId, total_amount, provider, payment_status) => {
     try {
         let created_at = new Date();
+        if (provider === 'paypal') {
+            total_amount = total_amount * 23000;
+        }
         const values = [[userId, total_amount, provider, payment_status, created_at]];
         const query = 'INSERT INTO orders (userId, total_amount, provider, payment_status, created_at) VALUES?';
         const [result] = await Database.query(query, [values]);
@@ -108,26 +111,28 @@ const GetOrder = async (userId) => {
     }
 };
 
-// Lấy ra chi tiết đơn hàng
-const GetOrderDetail = async (orderId) => {
-    try {
-        const query = `SELECT * FROM order_details WHERE order_id = '${orderId}'`;
-        const [result] = await Database.query(query);
-        return result;
-    } catch (error) {
-        throw error;
-    }
-};
-
 // Create order details
 const CreateOrderDetails = async (order_id, productId, quantity, price) => {
     try {
         const values = [[order_id, productId, quantity, price]];
         const [product] = await Database.query(`SELECT * FROM product WHERE id =?`, [productId]);
         let newQuantity = parseInt(product[0].quantity) - quantity;
-        await Database.query(`UPDATE product SET quantity = ? WHERE id = ?`, [newQuantity, productId]);
-        const query = 'INSERT INTO order_details (order_id, productId, quantity, price) VALUES?';
-        const [result] = await Database.query(query, [values]);
+        if (newQuantity > 0) {
+            await Database.query(`UPDATE product SET quantity = ? WHERE id = ?`, [newQuantity, productId]);
+            const query = 'INSERT INTO order_details (order_id, productId, quantity, price) VALUES?';
+            const [result] = await Database.query(query, [values]);
+            return result;
+        } else throw new ApiError(StatusCodes.BAD_GATEWAY, 'Sản phẩm đã hết hàng');
+    } catch (error) {
+        throw error;
+    }
+};
+
+// Lấy ra chi tiết đơn hàng
+const GetOrderDetail = async (orderId) => {
+    try {
+        const query = `SELECT * FROM order_details WHERE order_id = '${orderId}'`;
+        const [result] = await Database.query(query);
         return result;
     } catch (error) {
         throw error;
