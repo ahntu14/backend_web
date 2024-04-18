@@ -420,7 +420,7 @@ const CreatePayment = async (req, res, next) => {
 
         var signData = QueryString.stringify(vnp_Params, { encode: false });
         var hmac = crypto.createHmac('sha512', secretKey);
-        var signed = hmac.update(new Buffer(signData, 'utf-8')).digest('hex');
+        var signed = hmac.update(new Buffer.from(signData, 'utf-8')).digest('hex');
         vnp_Params['vnp_SecureHash'] = signed;
         vnpUrl += '?' + QueryString.stringify(vnp_Params, { encode: false });
 
@@ -445,14 +445,30 @@ const ReturnUrl = async (req, res, next) => {
         delete vnp_Params['vnp_SecureHash'];
         delete vnp_Params['vnp_SecureHashType'];
 
+        function sortObject(obj) {
+            let sorted = {};
+            let str = [];
+            let key;
+            for (key in obj) {
+                if (obj.hasOwnProperty(key)) {
+                    str.push(encodeURIComponent(key));
+                }
+            }
+            str.sort();
+            for (key = 0; key < str.length; key++) {
+                sorted[str[key]] = encodeURIComponent(obj[str[key]]).replace(/%20/g, '+');
+            }
+            return sorted;
+        }
+
         vnp_Params = sortObject(vnp_Params);
         let secretKey = 'PVUDMVKBWORXCEUKFZZEZBKWZZNCTDNW';
 
         var signData = QueryString.stringify(vnp_Params, { encode: false });
         var hmac = crypto.createHmac('sha512', secretKey);
-        var signed = hmac.update(new Buffer(signData, 'utf-8')).digest('hex');
+        var signed = hmac.update(new Buffer.from(signData, 'utf-8')).digest('hex');
 
-        if (responseCode === '00') {
+        if (responseCode === '00' && secureHash === signed) {
             let order = await userService.CreateOrder(userId, totalPrice, 'paypal', 'pending');
 
             for (const product of allProducts) {
