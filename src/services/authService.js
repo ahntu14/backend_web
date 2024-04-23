@@ -114,7 +114,7 @@ const RefreshToken = async (refreshToken) => {
                     role,
                 });
 
-                await Database.query(`UPDATE user SET refreshToken = ${newRefreshToken} WHERE userId = ${userId}`);
+                await Database.query(`UPDATE user SET refreshToken = ${newRefreshToken} WHERE id = ${userId}`);
 
                 let accessToken = token.generateAccessToken({
                     id,
@@ -138,8 +138,26 @@ const ForgotPassword = async (email) => {
     try {
         const [isUser] = await Database.query('SELECT * FROM user WHERE email = ?', [email]);
         if (isUser.length > 0) {
-            await rePassWord(email);
-            return 'Check your email address';
+            function generateRandomString(length) {
+                const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+                let result = '';
+                const charactersLength = characters.length;
+                for (let i = 0; i < length; i++) {
+                    result += characters.charAt(Math.floor(Math.random() * charactersLength));
+                }
+                return result;
+            }
+
+            const token = generateRandomString(16);
+            const values = [[isUser[0].id, token, (new Date().getTime() + 30 * 60 * 1000).toString()]];
+
+            await Database.query('Insert into forgot_password(user_id, token, exp_time) values?', [values]);
+
+            await rePassWord(email, token);
+            return {
+                status: true,
+                message: 'Vui lòng kiểm tra tin nhắn',
+            };
         } else {
             throw new ApiError(StatusCodes.NOT_FOUND, 'User not found');
         }
@@ -149,16 +167,31 @@ const ForgotPassword = async (email) => {
 };
 
 // Change password
-const ChangePassword = async (email, newPassword) => {
+const ChangePassword = async (token, newPassword) => {
     try {
-        const [isUser] = await Database.query('SELECT * FROM user WHERE email = ?', [email]);
-        if (isUser.length > 0) {
-            let password = await hashPassword(newPassword);
-            const [result] = await Database.query('UPDATE user SET password = ? WHERE email = ?', [password, email]);
-            await SuccessEmail(email);
-            return result;
+        const [isUser] = await Database.query('SELECT * FROM forgot_password WHERE token = ?', [token]);
+        if (isUser.length <= 0) {
+            return new ApiError(StatusCodes.UNAUTHORIZED, 'Bạn đã thay đổi mật khẩu rồi');
+        } else if (parseInt(isUser[0].exp_time) < new Date().getTime()) {
+            return new ApiError(StatusCodes.BAD_REQUEST, 'Link tạo lại mật khẩu đã hết hạn');
         } else {
-            throw new ApiError(StatusCodes.NOT_FOUND, 'User not found');
+            const [user] = await Database.query('SELECT * FROM user where id = ?', [parseInt(isUser[0].user_id)]);
+            console.log(newPassword, user[0].password);
+            const compare = await comparePassword(newPassword, user[0].password);
+
+            if (compare) {
+                return new ApiError(StatusCodes.BAD_REQUEST, 'Mật khẩu phải khác mật khẩu cũ');
+            } else {
+                const hashedPassword = await hashPassword(newPassword);
+                await Database.query(`UPDATE user set password = ? where id = ?`, [
+                    hashedPassword,
+                    parseInt(user[0].id),
+                ]);
+                return {
+                    status: true,
+                    message: 'Thay đổi mật khẩu thành công',
+                };
+            }
         }
     } catch (error) {
         throw error;
