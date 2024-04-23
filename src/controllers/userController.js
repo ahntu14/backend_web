@@ -362,29 +362,29 @@ const CreatePayment = async (req, res, next) => {
         let secretKey = 'MVQREENUPMSOYVBJWPAXHZGCWBGTLMWF';
         let vnpUrl = 'https://sandbox.vnpayment.vn/paymentv2/vpcpay.html';
 
-        let ipAddr =
+        let returnUrl = 'http://localhost:3000/order-return';
+
+        var ipAddr =
             req.headers['x-forwarded-for'] ||
             req.connection.remoteAddress ||
             req.socket.remoteAddress ||
             req.connection.socket.remoteAddress;
 
-        let returnUrl = 'http://localhost:3000/order-return';
+        var date = new Date();
 
-        let date = new Date();
+        var createDate = dateFormat(date, 'yyyymmddHHmmss');
+        var orderId = dateFormat(date, 'HHmmss');
+        var amount = totalPrice;
+        var bankCode = 'ncb';
 
-        let createDate = dateFormat(date, 'yyyymmddHHmmss');
-        let orderId = dateFormat(date, 'HHmmss');
-        let amount = totalPrice;
-        let bankCode = 'ncb';
+        var orderInfo = `${userId}`;
+        var orderType = 'billpayment';
+        var locale = req.body.language;
 
-        let orderInfo = `${userId}`;
-        let orderType = 'billpayment';
-        let locale = 'vn';
-        if (locale === null || locale === '') {
-            locale = 'vn';
-        }
-        let currCode = 'VND';
-        let vnp_Params = {};
+        var locale = 'vn';
+
+        var currCode = 'VND';
+        var vnp_Params = {};
         vnp_Params['vnp_Version'] = '2.1.0';
         vnp_Params['vnp_Command'] = 'pay';
         vnp_Params['vnp_TmnCode'] = tmnCode;
@@ -401,6 +401,7 @@ const CreatePayment = async (req, res, next) => {
         if (bankCode !== null && bankCode !== '') {
             vnp_Params['vnp_BankCode'] = bankCode;
         }
+
         function sortObject(obj) {
             let sorted = {};
             let str = [];
@@ -445,6 +446,7 @@ const ReturnUrl = async (req, res, next) => {
 
         delete vnp_Params['vnp_SecureHash'];
         delete vnp_Params['vnp_SecureHashType'];
+
         function sortObject(obj) {
             let sorted = {};
             let str = [];
@@ -460,16 +462,15 @@ const ReturnUrl = async (req, res, next) => {
             }
             return sorted;
         }
+
         vnp_Params = sortObject(vnp_Params);
         let secretKey = 'MVQREENUPMSOYVBJWPAXHZGCWBGTLMWF';
         var signData = QueryString.stringify(vnp_Params, { encode: false });
         var hmac = crypto.createHmac('sha512', secretKey);
         var signed = hmac.update(Buffer.from(signData, 'utf-8')).digest('hex');
 
-        console.log(secureHash);
-        console.log(signed);
         if (responseCode === '00' && secureHash === signed) {
-            let order = await userService.CreateOrder(userId, totalPrice, 'paypal', 'pending');
+            let order = await userService.CreateOrder(userId, totalPrice, 'vnpay', 'pending');
 
             for (const product of allProducts) {
                 await userService.CreateOrderDetails(
@@ -479,6 +480,8 @@ const ReturnUrl = async (req, res, next) => {
                     product.newPrice,
                 );
             }
+
+            await userService.DeleteCart(userId);
 
             var orderId = vnp_Params['vnp_TxnRef'];
             var rspCode = vnp_Params['vnp_ResponseCode'];
