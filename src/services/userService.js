@@ -85,27 +85,28 @@ const GetFavorite = async (userId) => {
 };
 
 // Create order
-const CreateOrder = async (userId, total_amount, provider, payment_status) => {
+const CreateOrder = async (userId, provider, orderInformation) => {
     try {
+        const allProducts = await userService.GetCart(userId);
+        const totalPrice = allProducts.reduce((total, product) => {
+            return total + product.newPrice * product.productQuantity;
+        }, 0);
         let created_at = new Date();
-        if (provider === 'paypal') {
-            total_amount = total_amount * 23000;
-        }
-        const values = [[userId, total_amount, provider, payment_status, created_at]];
-        const query = 'INSERT INTO orders (userId, total_amount, provider, payment_status, created_at) VALUES?';
+        const values = [[userId, totalPrice, provider, 'pending', created_at, orderInformation]];
+        const query =
+            'INSERT INTO orders (userId, total_amount, provider, payment_status, created_at, orderInfo) VALUES?';
         const [result] = await Database.query(query, [values]);
-        return result;
-    } catch (error) {
-        throw error;
-    }
-};
+        for (const product of allProducts) {
+            await userService.CreateOrderDetails(
+                result.insertId,
+                product.id,
+                product.productQuantity,
+                product.newPrice,
+            );
+        }
 
-// lấy ra những đơn hàng đã đặt
-const GetOrder = async (userId) => {
-    try {
-        const query = `SELECT * FROM orders WHERE userId = '${userId}'`;
-        const [result] = await Database.query(query);
-        return result;
+        await userService.DeleteCart(userId);
+        return 'Thành công';
     } catch (error) {
         throw error;
     }
@@ -123,6 +124,17 @@ const CreateOrderDetails = async (order_id, productId, quantity, price) => {
             const [result] = await Database.query(query, [values]);
             return result;
         } else throw new ApiError(StatusCodes.BAD_GATEWAY, 'Sản phẩm đã hết hàng');
+    } catch (error) {
+        throw error;
+    }
+};
+
+// lấy ra những đơn hàng đã đặt
+const GetOrder = async (userId) => {
+    try {
+        const query = `SELECT * FROM orders WHERE userId = '${userId}'`;
+        const [result] = await Database.query(query);
+        return result;
     } catch (error) {
         throw error;
     }
@@ -215,6 +227,7 @@ const DetailOrder = async (userId) => {
             o.total_amount AS total_amount,
             o.created_at AS order_date,
             o.payment_status as status,
+            o.orderInfo as orderInfo,
             CONCAT(
                 '[',
                 GROUP_CONCAT(
@@ -224,8 +237,8 @@ const DetailOrder = async (userId) => {
                 ']'
             ) AS order_details
         FROM orders o 
-        JOIN order_details od ON o.id = od.order_id 
-        JOIN product p ON od.productId = p.id 
+        LEFT JOIN order_details od ON o.id = od.order_id 
+        LEFT JOIN product p ON od.productId = p.id 
         WHERE o.userId = ${userId}
         GROUP BY o.id, o.created_at;
         `;

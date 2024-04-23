@@ -8,7 +8,7 @@ import md5 from 'md5';
 import config from 'config';
 import dateFormat from 'dateformat';
 import https from 'https';
-import { log } from 'console';
+import { convert } from '../utils/convert.js';
 
 //Update user's information
 const UpdateInfo = async (req, res, next) => {
@@ -106,31 +106,35 @@ const GetFavorite = async (req, res, next) => {
 };
 
 // Create order details
-const CreateOrderDetails = async (req, res, next) => {
-    try {
-        const { order_id, productId, quantity, price } = req.body;
-        if (!order_id || !productId || !quantity || !price) {
-            throw new ApiError(StatusCodes.CONFLICT, 'Missing something');
-        } else {
-            const orderDetail = await userService.CreateOrderDetails(order_id, productId, quantity, price);
-            res.status(StatusCodes.CREATED).json(orderDetail);
-            next();
-        }
-    } catch (error) {
-        next(error);
-    }
-};
+// const CreateOrderDetails = async (req, res, next) => {
+//     try {
+//         const { order_id, productId, quantity, price } = req.body;
+//         if (!order_id || !productId || !quantity || !price) {
+//             throw new ApiError(StatusCodes.CONFLICT, 'Missing something');
+//         } else {
+//             const orderDetail = await userService.CreateOrderDetails(order_id, productId, quantity, price);
+//             res.status(StatusCodes.CREATED).json(orderDetail);
+//             next();
+//         }
+//     } catch (error) {
+//         next(error);
+//     }
+// };
 
 // Create order
 const CreateOrder = async (req, res, next) => {
     try {
         const userId = req.headers.id;
-        const { total_amount, provider, payment_status } = req.body;
-        if (!userId || !total_amount || !payment_status || !provider) {
+        const { provider, orderInfo } = req.body;
+        console.log(userId, req.body);
+        if (!userId || !provider) {
             throw new ApiError(StatusCodes.BAD_GATEWAY, 'Missing something');
         } else {
-            const newOrder = await userService.CreateOrder(userId, total_amount, provider, payment_status);
-            res.status(StatusCodes.CREATED).json(newOrder);
+            const result = await userService.CreateOrder(userId, provider, orderInfo);
+            res.status(StatusCodes.CREATED).json({
+                status: true,
+                message: result,
+            });
             next();
         }
     } catch (error) {
@@ -167,15 +171,20 @@ const GetOrderDetail = async (req, res, next) => {
 // Momo pay
 const CreateMomoPay = async (req, res, next) => {
     try {
-        const { total } = req.body;
+        const userId = req.headers.id;
+        const allProducts = await userService.GetCart(userId);
+        const totalPrice = allProducts.reduce((total, product) => {
+            return total + product.newPrice * product.productQuantity;
+        }, 0);
+
         var accessKey = 'F8BBA842ECF85';
         var secretKey = 'K951B6PE1waDMi640xX08PD3vg6EkVlz';
         var orderInfo = 'pay with MoMo';
         var partnerCode = 'MOMO';
-        var redirectUrl = 'http://localhost:3000/order-return';
-        var ipnUrl = 'http://localhost:3000/cart';
+        var redirectUrl = 'http://10.0.2.2:1406/payment-success';
+        var ipnUrl = 'http://localhost:1406/user/vnpay_ipn';
         var requestType = 'payWithMethod';
-        var amount = total;
+        var amount = totalPrice;
         var orderId = partnerCode + new Date().getTime();
         var requestId = orderId;
         var extraData = '';
@@ -353,6 +362,9 @@ const DetailOrder = async (req, res, next) => {
 const CreatePayment = async (req, res, next) => {
     try {
         const userId = req.headers.id;
+        const { OrderInfo } = req.body;
+        const info = convert.toUrl(OrderInfo);
+        const orderInformation = `${userId}-${info}`;
         const allProducts = await userService.GetCart(userId);
         const totalPrice = allProducts.reduce((total, product) => {
             return total + product.newPrice * product.productQuantity;
@@ -377,10 +389,8 @@ const CreatePayment = async (req, res, next) => {
         var amount = totalPrice;
         var bankCode = 'ncb';
 
-        var orderInfo = `${userId}`;
+        var orderInfo = orderInformation;
         var orderType = 'billpayment';
-        var locale = req.body.language;
-
         var locale = 'vn';
 
         var currCode = 'VND';
@@ -420,9 +430,9 @@ const CreatePayment = async (req, res, next) => {
 
         vnp_Params = sortObject(vnp_Params);
 
-        let signData = QueryString.stringify(vnp_Params, { encode: false });
-        let hmac = crypto.createHmac('sha512', secretKey);
-        let signed = hmac.update(Buffer.from(signData, 'utf-8')).digest('hex');
+        var signData = QueryString.stringify(vnp_Params, { encode: false });
+        var hmac = crypto.createHmac('sha512', secretKey);
+        var signed = hmac.update(Buffer.from(signData, 'utf-8')).digest('hex');
         vnp_Params['vnp_SecureHash'] = signed;
         vnpUrl += '?' + QueryString.stringify(vnp_Params, { encode: false });
 
@@ -436,13 +446,15 @@ const CreatePayment = async (req, res, next) => {
 const ReturnUrl = async (req, res, next) => {
     try {
         var vnp_Params = req.query;
+        console.log(req.query);
         var secureHash = vnp_Params['vnp_SecureHash'];
-        let userId = parseInt(vnp_Params['vnp_OrderInfo']);
+        let orderInfo = vnp_Params['vnp_OrderInfo'];
+
+        let userId = parseInt(orderInfo[0]);
+
+        let orderInformation = convert.toString(orderInfo.slice(2));
+
         let responseCode = vnp_Params['vnp_ResponseCode'];
-        const allProducts = await userService.GetCart(parseInt(userId));
-        const totalPrice = allProducts.reduce((total, product) => {
-            return total + product.newPrice * product.productQuantity;
-        }, 0);
 
         delete vnp_Params['vnp_SecureHash'];
         delete vnp_Params['vnp_SecureHashType'];
@@ -469,22 +481,9 @@ const ReturnUrl = async (req, res, next) => {
         var hmac = crypto.createHmac('sha512', secretKey);
         var signed = hmac.update(Buffer.from(signData, 'utf-8')).digest('hex');
 
-        if (responseCode === '00' && secureHash === signed) {
-            let order = await userService.CreateOrder(userId, totalPrice, 'vnpay', 'pending');
+        if (responseCode === '00') {
+            await userService.CreateOrder(userId, 'vnpay', orderInformation);
 
-            for (const product of allProducts) {
-                await userService.CreateOrderDetails(
-                    order.insertId,
-                    product.id,
-                    product.productQuantity,
-                    product.newPrice,
-                );
-            }
-
-            await userService.DeleteCart(userId);
-
-            var orderId = vnp_Params['vnp_TxnRef'];
-            var rspCode = vnp_Params['vnp_ResponseCode'];
             res.status(200).json({ RspCode: '00', Message: 'success' });
         } else {
             res.status(200).json({ RspCode: '97', Message: 'Fail checksum' });
@@ -502,7 +501,7 @@ export const userController = {
     ToFavorite,
     GetFavorite,
     CreateOrder,
-    CreateOrderDetails,
+    // CreateOrderDetails,
     CreatePayment,
     CreateMomoPay,
     ChangeQuantity,

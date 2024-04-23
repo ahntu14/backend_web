@@ -229,7 +229,6 @@ const updateOrderStatus = async (status, orderId) => {
             const query = `UPDATE orders SET payment_status = '${status}' WHERE id = ${orderId}`;
             const [result] = await Database.query(query);
             const [products] = await Database.query(`SELECT * FROM order_details WHERE order_id = ${orderId}`);
-            // console.log(products[0]);
             await products.map(async (product) => {
                 let [pro] = await Database.query(`SELECT * FROM product WHERE id = ?`, [product.productId]);
                 let newQuantity = parseInt(product.quantity) + parseInt(pro[0].quantity);
@@ -292,7 +291,7 @@ const getTotalAmount = async () => {
 const getPerMonth = async () => {
     try {
         const query =
-            'SELECT YEAR(created_at) AS year, MONTH(created_at) AS month, COUNT(*) AS total_orders, SUM(total_amount) AS total_amount FROM  orders WHERE YEAR(created_at) = 2024 GROUP BY YEAR(created_at), MONTH(created_at);';
+            'SELECT YEAR(created_at) AS year, MONTH(created_at) AS month, COUNT(*) AS total_orders, SUM(total_amount) AS total_amount FROM  orders WHERE YEAR(created_at) = 2024 AND payment_status = "completed" GROUP BY YEAR(created_at), MONTH(created_at);';
         const result = await Database.query(query);
         return result;
     } catch (error) {

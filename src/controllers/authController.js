@@ -75,15 +75,13 @@ const ForgotPassword = async (req, res, next) => {
 // Change password
 const ChangePassword = async (req, res, next) => {
     try {
-        const { email, password, newPassword } = req.body;
-        if (!email || !password || !newPassword) {
+        const { token, newPassword } = req.body;
+        if (!token || !newPassword) {
             throw new Error('Missing something');
-        } else if (password == 123456789) {
-            const result = await authService.ChangePassword(email, newPassword);
+        } else {
+            const result = await authService.ChangePassword(token, newPassword);
             res.status(StatusCodes.OK).json(result);
             next();
-        } else {
-            throw new ApiError(StatusCodes.NOT_FOUND, 'password is invalid');
         }
     } catch (error) {
         next(error);

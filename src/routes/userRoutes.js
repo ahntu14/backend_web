@@ -32,13 +32,13 @@ Router.get('/order-detail/:id', jwtMiddleware.verifyToken, userController.GetOrd
 Router.post('/order', jwtMiddleware.verifyToken, userController.CreateOrder);
 
 // Create order details
-Router.post('/order-detail', jwtMiddleware.verifyToken, userController.CreateOrderDetails);
+// Router.post('/order-detail', jwtMiddleware.verifyToken, userController.CreateOrderDetails);
 
 // VN Pay
-Router.get('/payment', jwtMiddleware.verifyToken, userController.CreatePayment);
+Router.post('/payment', jwtMiddleware.verifyToken, userController.CreatePayment);
 
 // Momo payment
-Router.post('/momo-pay', userController.CreateMomoPay);
+Router.get('/momo-pay', jwtMiddleware.verifyToken, userController.CreateMomoPay);
 
 // Change quantity in cart
 Router.put('/change-quantity', jwtMiddleware.verifyToken, userController.ChangeQuantity);

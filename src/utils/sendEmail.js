@@ -23,7 +23,7 @@ export const sendRegisterEmail = async (email) => {
     return info;
 };
 
-export const rePassWord = async (email) => {
+export const rePassWord = async (email, token) => {
     let transporter = nodemailer.createTransport({
         host: 'smtp.gmail.com',
         port: 465,
@@ -34,12 +34,13 @@ export const rePassWord = async (email) => {
         },
     });
 
+    let url = `http://localhost:3000/reset-password?token=${token}`;
+
     let info = await transporter.sendMail({
         from: `"Phạm Anh Tú" <${env.MAIL_USERNAME}>`,
         to: email,
         subject: 'Tạo lại mật khẩu',
-        text: 'Mật khẩu mới của bạn là 123456789, hãy thay đổi mật khẩu để khi sử dụng.',
-        html: '<b>Mật khẩu mới của bạn là 123456789, hãy thay đổi mật khẩu để khi sử dụng.</b>',
+        text: `Vui lòng truy cập đường link sau để thay đổi mật khẩu trong 30 phút: ${url}`,
     });
 
     return info;

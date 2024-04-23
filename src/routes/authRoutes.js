@@ -15,6 +15,6 @@ Router.post('/refresh-token', authController.RefreshToken);
 Router.post('/forgot-password', authController.ForgotPassword);
 
 // Change password
-Router.post('/change-password', authController.ChangePassword);
+Router.post('/reset-password', authController.ChangePassword);
 
 export const authRoutes = Router;

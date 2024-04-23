@@ -67,6 +67,7 @@ const getProducts = async (req, res, next) => {
 const createProduct = async (req, res, next) => {
     try {
         const imageUrl = req.file.path;
+        console.log(req.body);
         const {
             name,
             category,
