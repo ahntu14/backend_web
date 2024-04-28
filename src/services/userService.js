@@ -231,14 +231,15 @@ const DetailOrder = async (userId) => {
             CONCAT(
                 '[',
                 GROUP_CONCAT(
-                    JSON_OBJECT('name', p.name, 'imageUrl', p.imageUrl, 'quantity', od.quantity, 'oldPrice', p.oldPrice, 'newPrice', p.newPrice)
+                    JSON_OBJECT('name', p.name, 'imageUrl', p.imageUrl, 'quantity', od.quantity, 'oldPrice', p.oldPrice, 'newPrice', p.newPrice, 'rating', r.rate)
                     SEPARATOR ','
                 ),
                 ']'
             ) AS order_details
-        FROM orders o 
+        FROM orders o
         LEFT JOIN order_details od ON o.id = od.order_id 
-        LEFT JOIN product p ON od.productId = p.id 
+        LEFT JOIN product p ON od.productId = p.id
+        LEFT JOIN rating r ON r.product_id = p.id AND r.user_id = o.userId
         WHERE o.userId = ${userId}
         GROUP BY o.id, o.created_at;
         `;
