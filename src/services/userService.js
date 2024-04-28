@@ -226,6 +226,7 @@ const DetailOrder = async (userId) => {
             o.id,
             o.total_amount AS total_amount,
             o.created_at AS order_date,
+            o.provider AS provider,
             o.payment_status as status,
             o.orderInfo as orderInfo,
             CONCAT(
