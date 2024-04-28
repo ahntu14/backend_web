@@ -493,6 +493,26 @@ const ReturnUrl = async (req, res, next) => {
     }
 };
 
+// Đánh giá sản phẩm
+const RateProduct = async (req, res, next) => {
+    try {
+        const userId = req.headers.id;
+        const { productId, rate, comment } = req.body;
+        if (!productId || !rate) {
+            throw new ApiError(StatusCodes.BAD_REQUEST, 'Missing something');
+        } else {
+            const result = await userService.RateProduct(userId, productId, rate, comment);
+            res.status(StatusCodes.OK).json({
+                status: true,
+                message: 'Đánh giá thành công',
+            });
+            next();
+        }
+    } catch (error) {
+        next(error);
+    }
+};
+
 export const userController = {
     UpdateInfo,
     GetInfo,
@@ -512,4 +532,5 @@ export const userController = {
     DeleteCart,
     DetailOrder,
     ReturnUrl,
+    RateProduct,
 };

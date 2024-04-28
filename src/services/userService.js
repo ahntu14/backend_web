@@ -255,6 +255,26 @@ const DetailOrder = async (userId) => {
     }
 };
 
+const RateProduct = async (userId, productId, rate, comment) => {
+    try {
+        const existedQuery = `SELECT Distinct * from orders o inner join order_details od on o.id = od.order_id where o.userId = ? and od.productId = ?`;
+        const [existedOrder] = await Database.query(existedQuery, [userId, productId]);
+        const [existedReview] = await Database.query(`SELECT * from rating where user_id = ? and product_id = ?`, [
+            userId,
+            productId,
+        ]);
+        if (existedReview.length > 0) throw new ApiError(StatusCodes.BAD_REQUEST, 'Bạn đã đánh giá sản phẩm này rồi');
+        if (existedOrder.length > 0) {
+            const query = `INSERT INTO rating (user_id, product_id, rate, comment) VALUES ?`;
+            const values = [[userId, productId, rate, comment]];
+            const [result] = await Database.query(query, [values]);
+            return result;
+        } else throw new ApiError(StatusCodes.NOT_FOUND, 'Bạn chưa mua sản phẩm này');
+    } catch (error) {
+        throw error;
+    }
+};
+
 export const userService = {
     UpdateInfo,
     GetInfo,
@@ -271,4 +291,5 @@ export const userService = {
     CancelOrder,
     DeleteCart,
     DetailOrder,
+    RateProduct,
 };
