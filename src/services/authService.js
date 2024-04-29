@@ -100,21 +100,37 @@ const RefreshToken = async (refreshToken) => {
         const [result] = await Database.query(`Select * from user where id = ${id}`);
         let oldToken = result[0].refreshToken;
         if (refreshToken === oldToken) {
-            let newRefreshToken = token.generateRefreshToken({
-                id,
-                role,
+            let token2;
+            jwt.verify(oldToken, env.JWT_REFRESH_KEY, (err, decodedToken) => {
+                if (err) {
+                    throw new ApiError(StatusCodes.FORBIDDEN, 'Token is not invalid');
+                } else {
+                    token2 = decodedToken;
+                }
             });
+            let date = new Date();
+            if (token2.exp * 1000 > date.getTime()) {
+                let newRefreshToken = token.generateRefreshToken({
+                    id,
+                    role,
+                });
 
-            await Database.query(`UPDATE user SET refreshToken = ? WHERE id = ${id}`, [newRefreshToken]);
+                await Database.query(`UPDATE user SET refreshToken = ? WHERE id = ${id}`, [newRefreshToken]);
 
-            let accessToken = token.generateAccessToken({
-                id,
-                role,
-            });
-            return {
-                accessToken: accessToken,
-                refreshToken: newRefreshToken,
-            };
+                let accessToken = token.generateAccessToken({
+                    id,
+                    role,
+                });
+                return {
+                    accessToken: accessToken,
+                    refreshToken: newRefreshToken,
+                };
+            } else {
+                return {
+                    status: false,
+                    message: 'Token hết hạn',
+                };
+            }
         } else {
             return 'Token is not match';
         }
