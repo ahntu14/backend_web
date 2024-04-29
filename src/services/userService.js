@@ -232,14 +232,15 @@ const DetailOrder = async (userId) => {
             CONCAT(
                 '[',
                 GROUP_CONCAT(
-                    JSON_OBJECT( 'id', p.id, 'name',  p.name, 'imageUrl', p.imageUrl, 'quantity', od.quantity, 'oldPrice', p.oldPrice, 'newPrice', p.newPrice)
+                    JSON_OBJECT('id', p.id,'name', p.name, 'imageUrl', p.imageUrl, 'quantity', od.quantity, 'oldPrice', p.oldPrice, 'newPrice', p.newPrice, 'rating', r.rate)
                     SEPARATOR ','
                 ),
                 ']'
             ) AS order_details
-        FROM orders o 
+        FROM orders o
         LEFT JOIN order_details od ON o.id = od.order_id 
-        LEFT JOIN product p ON od.productId = p.id 
+        LEFT JOIN product p ON od.productId = p.id
+        LEFT JOIN rating r ON r.product_id = p.id AND r.user_id = o.userId
         WHERE o.userId = ${userId}
         GROUP BY o.id, o.created_at;
         `;
@@ -250,6 +251,26 @@ const DetailOrder = async (userId) => {
         });
 
         return result;
+    } catch (error) {
+        throw error;
+    }
+};
+
+const RateProduct = async (userId, productId, rate, comment) => {
+    try {
+        const existedQuery = `SELECT Distinct * from orders o inner join order_details od on o.id = od.order_id where o.userId = ? and od.productId = ?`;
+        const [existedOrder] = await Database.query(existedQuery, [userId, productId]);
+        const [existedReview] = await Database.query(`SELECT * from rating where user_id = ? and product_id = ?`, [
+            userId,
+            productId,
+        ]);
+        if (existedReview.length > 0) throw new ApiError(StatusCodes.BAD_REQUEST, 'Bạn đã đánh giá sản phẩm này rồi');
+        if (existedOrder.length > 0) {
+            const query = `INSERT INTO rating (user_id, product_id, rate, comment) VALUES ?`;
+            const values = [[userId, productId, rate, comment]];
+            const [result] = await Database.query(query, [values]);
+            return result;
+        } else throw new ApiError(StatusCodes.NOT_FOUND, 'Bạn chưa mua sản phẩm này');
     } catch (error) {
         throw error;
     }
@@ -271,4 +292,5 @@ export const userService = {
     CancelOrder,
     DeleteCart,
     DetailOrder,
+    RateProduct,
 };

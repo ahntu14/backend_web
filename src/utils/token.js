@@ -3,7 +3,7 @@ import { env } from '../config/environment.js';
 
 const generateAccessToken = (payload) => {
     const options = {
-        expiresIn: '24h',
+        expiresIn: '5s',
     };
     return jwt.sign(
         {

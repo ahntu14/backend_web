@@ -57,4 +57,7 @@ Router.get('/detail-order', jwtMiddleware.verifyToken, userController.DetailOrde
 
 Router.get('/vnpay_ipn', userController.ReturnUrl);
 
+// đánh giá sản phẩm
+Router.post('/review', jwtMiddleware.verifyToken, userController.RateProduct);
+
 export const userRoutes = Router;
