@@ -12,4 +12,6 @@ Router.get('/category', publicController.categoryProduct);
 // search for products
 Router.get('/search', publicController.searchProducts);
 
+Router.get('/review/:id', authController.GetReview);
+
 export const publicRoutes = Router;

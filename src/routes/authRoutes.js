@@ -17,6 +17,4 @@ Router.post('/forgot-password', authController.ForgotPassword);
 // Change password
 Router.post('/reset-password', authController.ChangePassword);
 
-Router.get('/review/:id', authController.GetReview);
-
 export const authRoutes = Router;
