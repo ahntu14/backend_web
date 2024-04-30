@@ -56,11 +56,12 @@ const GetCart = async (userId) => {
         const query = `SELECT product.*, cart.quantity as productQuantity FROM product INNER JOIN cart ON product.id = cart.productId and userId = ${userId};`;
         const [products] = await Database.query(query);
         for (const product of products) {
-            if (product.productQuantity > product.quantity) {
+            if (product.productQuantity >= product.quantity) {
                 product.productQuantity = product.quantity;
                 await Database.query(`UPDATE cart SET quantity = ${product.quantity} WHERE userId = ${userId}`);
             }
         }
+
         return products;
     } catch (error) {
         throw error;
@@ -122,7 +123,7 @@ const CreateOrderDetails = async (order_id, productId, quantity, price) => {
         const values = [[order_id, productId, quantity, price]];
         const [product] = await Database.query(`SELECT * FROM product WHERE id =?`, [productId]);
         let newQuantity = parseInt(product[0].quantity) - quantity;
-        if (newQuantity > 0) {
+        if (newQuantity >= 0) {
             await Database.query(`UPDATE product SET quantity = ? WHERE id = ?`, [newQuantity, productId]);
             const query = 'INSERT INTO order_details (order_id, productId, quantity, price) VALUES?';
             const [result] = await Database.query(query, [values]);
