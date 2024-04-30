@@ -34,8 +34,20 @@ const searchProducts = async (keyword) => {
     }
 };
 
+const GetReview = async (productId) => {
+    try {
+        const query = `select u.name, r.rate, r.comment from rating r left join user u on r.user_id = u.id where product_id = ${productId} order by rate`;
+        const [results] = await Database.query(query);
+
+        return results;
+    } catch (error) {
+        throw error;
+    }
+};
+
 export const publicService = {
     allProducts,
     categoryProduct,
     searchProducts,
+    GetReview,
 };

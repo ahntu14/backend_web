@@ -46,8 +46,20 @@ const categoryProduct = async (req, res, next) => {
     }
 };
 
+const GetReview = async (req, res, next) => {
+    try {
+        const productId = req.params.id;
+        const reviews = await authService.GetReview(productId);
+        res.status(StatusCodes.OK).json(reviews);
+        next();
+    } catch (error) {
+        next(error);
+    }
+};
+
 export const publicController = {
     allProducts,
     categoryProduct,
     searchProducts,
+    GetReview,
 };
