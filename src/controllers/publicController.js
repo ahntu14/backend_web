@@ -49,7 +49,7 @@ const categoryProduct = async (req, res, next) => {
 const GetReview = async (req, res, next) => {
     try {
         const productId = req.params.id;
-        const reviews = await authService.GetReview(productId);
+        const reviews = await publicService.GetReview(productId);
         res.status(StatusCodes.OK).json(reviews);
         next();
     } catch (error) {
