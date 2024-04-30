@@ -271,6 +271,12 @@ const RateProduct = async (userId, productId, rate, comment) => {
         ]);
         if (existedReview.length > 0) throw new ApiError(StatusCodes.BAD_REQUEST, 'Bạn đã đánh giá sản phẩm này rồi');
         if (existedOrder.length > 0) {
+            const [product] = await Database.query(`SELECT rate, numberReview from product where id = ${productId}`);
+            let newRate = rate + product[0].rate;
+            let newNumberReview = product[0].numberReview + 1;
+            await Database.query(
+                `UPDATE product SET rate = ${newRate}, numberReview = ${newNumberReview} WHERE id = ${productId}`,
+            );
             const query = `INSERT INTO rating (user_id, product_id, rate, comment) VALUES ?`;
             const values = [[userId, productId, rate, comment]];
             const [result] = await Database.query(query, [values]);
