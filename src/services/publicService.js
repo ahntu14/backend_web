@@ -4,8 +4,9 @@ import Database from '../config/mysql.js';
 const allProducts = async () => {
     try {
         const query = 'SELECT * FROM product';
-        const [result] = await Database.query(query);
-        return result;
+        let [products] = await Database.query(query);
+        products = products.filter((product) => product.quantity > 0);
+        return products;
     } catch (error) {
         throw error;
     }
