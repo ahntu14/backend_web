@@ -54,8 +54,14 @@ const ToCart = async (productId, quantity, userId) => {
 const GetCart = async (userId) => {
     try {
         const query = `SELECT product.*, cart.quantity as productQuantity FROM product INNER JOIN cart ON product.id = cart.productId and userId = ${userId};`;
-        const [result] = await Database.query(query);
-        return result;
+        const [products] = await Database.query(query);
+        for (const product of products) {
+            if (product.productQuantity > product.quantity) {
+                product.productQuantity = product.quantity;
+                await Database.query(`UPDATE cart SET quantity = ${product.quantity} WHERE userId = ${userId}`);
+            }
+        }
+        return products;
     } catch (error) {
         throw error;
     }
@@ -91,10 +97,8 @@ const CreateOrder = async (userId, provider, orderInformation) => {
         const totalPrice = allProducts.reduce((total, product) => {
             return total + product.newPrice * product.productQuantity;
         }, 0);
-        let created_at = new Date();
-        const values = [[userId, totalPrice, provider, 'pending', created_at, orderInformation]];
-        const query =
-            'INSERT INTO orders (userId, total_amount, provider, payment_status, created_at, orderInfo) VALUES?';
+        const values = [[userId, totalPrice, provider, 'pending', orderInformation]];
+        const query = 'INSERT INTO orders (userId, total_amount, provider, payment_status, orderInfo) VALUES?';
         const [result] = await Database.query(query, [values]);
         for (const product of allProducts) {
             await userService.CreateOrderDetails(

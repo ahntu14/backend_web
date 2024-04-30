@@ -165,7 +165,10 @@ const ForgotPassword = async (email) => {
                 message: 'Vui lòng kiểm tra tin nhắn',
             };
         } else {
-            throw new ApiError(StatusCodes.NOT_FOUND, 'User not found');
+            return {
+                status: false,
+                message: 'Đã có lỗi xảy ra',
+            };
         }
     } catch (error) {
         throw error;
