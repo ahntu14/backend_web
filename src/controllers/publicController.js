@@ -1,14 +1,12 @@
 import { publicService } from '../services/publicService.js';
 import { StatusCodes } from 'http-status-codes';
 import ApiError from '../utils/ApiError.js';
-import { shuffleArray } from '../utils/shuffle.js';
 
 // get all products
 const allProducts = async (req, res, next) => {
     try {
         let products = await publicService.allProducts();
-        let newProducts = shuffleArray(products);
-        res.status(StatusCodes.OK).json(newProducts);
+        res.status(StatusCodes.OK).json(products);
     } catch (error) {
         next(error);
     }

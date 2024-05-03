@@ -14,7 +14,7 @@ const Register = async (name, email, password) => {
         const existedUserQuery = 'SELECT * FROM user WHERE email = ?';
         const [existedUser] = await Database.query(existedUserQuery, [email]);
         if (existedUser.length > 0) {
-            return 'User email is already registered';
+            throw new ApiError(StatusCodes.BAD_REQUEST, 'Email này đã được đăng ký trước đó');
         } else {
             const role = 'user';
             const created_at = new Date();
