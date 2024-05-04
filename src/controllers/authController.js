@@ -77,7 +77,7 @@ const ChangePassword = async (req, res, next) => {
     try {
         const { token, newPassword } = req.body;
         if (!token || !newPassword) {
-            throw new Error('Missing something');
+            throw new Error('Vui lòng điền đầy đủ thông tin');
         } else {
             const result = await authService.ChangePassword(token, newPassword);
             res.status(StatusCodes.OK).json(result);
