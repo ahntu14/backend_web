@@ -165,10 +165,7 @@ const ForgotPassword = async (email) => {
                 message: 'Vui lòng kiểm tra tin nhắn',
             };
         } else {
-            return {
-                status: false,
-                message: 'Email chưa được đăng ký trước đó',
-            };
+            throw new ApiError(StatusCodes.UNAUTHORIZED, 'Email chưa được đăng ký trước đó');
         }
     } catch (error) {
         throw error;
