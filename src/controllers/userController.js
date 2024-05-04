@@ -513,6 +513,20 @@ const RateProduct = async (req, res, next) => {
     }
 };
 
+const ChangePassword = async (req, res, next) => {
+    try {
+        const userId = req.headers.id;
+        const { oldPassword, newPassword } = req.body;
+        if (!oldPassword || !newPassword) {
+            throw new ApiError(StatusCodes.BAD_REQUEST, 'Missing something');
+        }
+        const result = await userService.ChangePassword(userId, oldPassword, newPassword);
+        res.status(StatusCodes.OK).json(result);
+    } catch (error) {
+        next(error);
+    }
+};
+
 export const userController = {
     UpdateInfo,
     GetInfo,
@@ -521,7 +535,7 @@ export const userController = {
     ToFavorite,
     GetFavorite,
     CreateOrder,
-    // CreateOrderDetails,
+    ChangePassword,
     CreatePayment,
     CreateMomoPay,
     ChangeQuantity,
