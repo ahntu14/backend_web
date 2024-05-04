@@ -32,7 +32,7 @@ const Login = async (req, res, next) => {
         if (!email || !password) {
             throw new ApiError(StatusCodes.NOT_FOUND, 'Missing email or password!');
         } else if (!emailValidation(email)) {
-            throw new ApiError(StatusCodes.NOT_FOUND, 'Email is invalid');
+            throw new ApiError(StatusCodes.NOT_FOUND, 'Email không đúng địng dạng');
         } else {
             const result = await authService.Login(email, password);
             if (result === 'Invalid password') {
