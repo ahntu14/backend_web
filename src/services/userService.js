@@ -170,7 +170,7 @@ const ChangeQuantity = async (userId, productId, quantity) => {
             const [result] = await Database.query(query);
             return result;
         } else {
-            throw new ApiError(StatusCodes.NOT_FOUND, 'Product was not found');
+            throw new ApiError(StatusCodes.NOT_FOUND, 'Không tìm thấy sản phẩm');
         }
     } catch (error) {
         throw error;

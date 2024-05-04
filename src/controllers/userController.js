@@ -374,7 +374,7 @@ const CreatePayment = async (req, res, next) => {
         let secretKey = 'MVQREENUPMSOYVBJWPAXHZGCWBGTLMWF';
         let vnpUrl = 'https://sandbox.vnpayment.vn/paymentv2/vpcpay.html';
 
-        let returnUrl = 'http://localhost:3000/order-return';
+        let returnUrl = '/order-return';
 
         var ipAddr =
             req.headers['x-forwarded-for'] ||
