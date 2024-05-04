@@ -167,7 +167,7 @@ const ForgotPassword = async (email) => {
         } else {
             return {
                 status: false,
-                message: 'Đã có lỗi xảy ra',
+                message: 'Email chưa được đăng ký trước đó',
             };
         }
     } catch (error) {

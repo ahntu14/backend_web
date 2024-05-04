@@ -60,4 +60,6 @@ Router.get('/vnpay_ipn', userController.ReturnUrl);
 // đánh giá sản phẩm
 Router.post('/review', jwtMiddleware.verifyToken, userController.RateProduct);
 
+Router.post('/change-password', jwtMiddleware.verifyToken, userController.ChangePassword);
+
 export const userRoutes = Router;

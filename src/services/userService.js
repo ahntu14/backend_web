@@ -1,6 +1,7 @@
 import { StatusCodes } from 'http-status-codes';
 import Database from '../config/mysql.js';
 import ApiError from '../utils/ApiError.js';
+import { comparePassword, hashPassword } from '../utils/password.js';
 
 // Update user's information
 const UpdateInfo = async (id, name, address, phone) => {
@@ -285,6 +286,23 @@ const RateProduct = async (userId, productId, rate, comment) => {
     }
 };
 
+const ChangePassword = async (userId, oldPassword, newPassword) => {
+    try {
+        const [user] = await Database.query(`SELECT distinct * from user where id = ${userId}`);
+        if (!(await comparePassword(oldPassword, user[0].password))) {
+            throw new ApiError(StatusCodes.BAD_REQUEST, 'Mật khẩu cũ không đúng');
+        }
+        const hashedPassword = await hashPassword(newPassword);
+        await Database.query(`UPDATE user SET password = ? WHERE id = ?`, [hashedPassword, userId]);
+        return {
+            status: true,
+            message: 'Thay đổi mật khẩu thành công',
+        };
+    } catch (error) {
+        throw error;
+    }
+};
+
 export const userService = {
     UpdateInfo,
     GetInfo,
@@ -302,4 +320,5 @@ export const userService = {
     DeleteCart,
     DetailOrder,
     RateProduct,
+    ChangePassword,
 };
