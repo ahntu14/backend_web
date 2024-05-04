@@ -57,11 +57,12 @@ const GetCart = async (userId) => {
         const query = `SELECT product.*, cart.quantity as productQuantity FROM product INNER JOIN cart ON product.id = cart.productId and userId = ${userId};`;
         const [products] = await Database.query(query);
         for (const product of products) {
-            if (product.productQuantity > product.quantity) {
+            if (product.productQuantity >= product.quantity) {
                 product.productQuantity = product.quantity;
                 await Database.query(`UPDATE cart SET quantity = ${product.quantity} WHERE userId = ${userId}`);
             }
         }
+
         return products;
     } catch (error) {
         throw error;
@@ -169,7 +170,7 @@ const ChangeQuantity = async (userId, productId, quantity) => {
             const [result] = await Database.query(query);
             return result;
         } else {
-            throw new ApiError(StatusCodes.NOT_FOUND, 'Product was not found');
+            throw new ApiError(StatusCodes.NOT_FOUND, 'Không tìm thấy sản phẩm');
         }
     } catch (error) {
         throw error;
@@ -226,7 +227,8 @@ const DeleteCart = async (userId) => {
 // Lấy ra đơn hàng và chi tiết của nó
 const DetailOrder = async (userId) => {
     try {
-        const query = `SELECT 
+        const query = `
+            SELECT 
             o.id,
             o.total_amount AS total_amount,
             o.created_at AS order_date,

@@ -3,7 +3,7 @@ import { env } from '../config/environment.js';
 
 const generateAccessToken = (payload) => {
     const options = {
-        expiresIn: '24h',
+        expiresIn: '10m',
     };
     return jwt.sign(
         {
@@ -20,7 +20,7 @@ const generateRefreshToken = (payload) => {
             payload,
         },
         env.JWT_REFRESH_KEY,
-        { expiresIn: '30d' },
+        { expiresIn: '1y' },
     );
 };
 
