@@ -238,7 +238,7 @@ const DetailOrder = async (userId) => {
             CONCAT(
                 '[',
                 GROUP_CONCAT(
-                    JSON_OBJECT('id', p.id, 'name', p.name, 'imageUrl', p.imageUrl, 'quantity', od.quantity, 'oldPrice', p.oldPrice, 'newPrice', p.newPrice, 'rating', r.rate)
+                    JSON_OBJECT('id', p.id, 'name', p.name, 'slug', p.slug, 'imageUrl', p.imageUrl, 'quantity', od.quantity, 'oldPrice', p.oldPrice, 'newPrice', p.newPrice, 'rating', r.rate)
                     SEPARATOR ','
                 ),
                 ']'
