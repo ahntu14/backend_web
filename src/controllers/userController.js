@@ -368,7 +368,7 @@ const CreatePayment = async (req, res, next) => {
         var createDate = dateFormat(date, 'yyyymmddHHmmss');
         var orderId = dateFormat(date, 'HHmmss');
         var amount = totalPrice;
-        var bankCode = 'ncb';
+        var bankCode = '';
 
         var orderInfo = orderInformation;
         var orderType = 'billpayment';
