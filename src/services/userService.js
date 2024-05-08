@@ -4,10 +4,10 @@ import ApiError from '../utils/ApiError.js';
 import { comparePassword, hashPassword } from '../utils/password.js';
 
 // Update user's information
-const UpdateInfo = async (id, name, address, phone) => {
+const UpdateInfo = async (id, name, address, phone, addressCode) => {
     try {
-        const values = [name, address, phone, id];
-        const query = 'UPDATE user SET name = ?, address = ?, phone = ? WHERE id = ?';
+        const values = [name, address, phone, addressCode, id];
+        const query = 'UPDATE user SET name = ?, address = ?, phone = ?, address_code = ? WHERE id = ?';
         const [result] = await Database.query(query, values);
         return result;
     } catch (error) {
@@ -18,7 +18,7 @@ const UpdateInfo = async (id, name, address, phone) => {
 // Get user's information
 const GetInfo = async (id) => {
     try {
-        const query = 'SELECT name, email, address, phone FROM user WHERE id = ?';
+        const query = 'SELECT name, email, address, phone, address_code FROM user WHERE id = ?';
         const [result] = await Database.query(query, [id]);
         return result;
     } catch (error) {
@@ -238,7 +238,7 @@ const DetailOrder = async (userId) => {
             CONCAT(
                 '[',
                 GROUP_CONCAT(
-                    JSON_OBJECT('id', p.id, 'name', p.name, 'imageUrl', p.imageUrl, 'quantity', od.quantity, 'oldPrice', p.oldPrice, 'newPrice', p.newPrice, 'rating', r.rate)
+                    JSON_OBJECT('id', p.id, 'name', p.name, 'imageUrl', p.imageUrl, 'quantity', od.quantity, 'oldPrice', p.oldPrice, 'newPrice', p.newPrice, 'rating', r.rate, 'slug', p.slug)
                     SEPARATOR ','
                 ),
                 ']'

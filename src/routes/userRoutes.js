@@ -62,4 +62,12 @@ Router.post('/review', jwtMiddleware.verifyToken, userController.RateProduct);
 
 Router.post('/change-password', jwtMiddleware.verifyToken, userController.ChangePassword);
 
+Router.post('/fee', userController.GetFee);
+
+Router.get('/province', userController.GetProvince);
+
+Router.post('/district', userController.GetDistrict);
+
+Router.post('/ward', userController.GetWard);
+
 export const userRoutes = Router;

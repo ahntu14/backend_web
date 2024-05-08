@@ -3,23 +3,25 @@ import { userService } from '../services/userService.js';
 import ApiError from '../utils/ApiError.js';
 import QueryString from 'qs';
 import crypto from 'crypto';
-import moment from 'moment';
-import md5 from 'md5';
-import config from 'config';
 import dateFormat from 'dateformat';
 import https from 'https';
 import { convert } from '../utils/convert.js';
+import axios from 'axios';
+import { env } from '../config/environment.js';
 
 //Update user's information
 const UpdateInfo = async (req, res, next) => {
     try {
         const id = req.headers.id;
-        const { name, address, phone } = req.body;
+        const { name, address, phone, addressCode } = req.body;
         if (!name || !address || !phone) {
             throw new ApiError(StatusCodes.BAD_REQUEST, 'Missing something');
         } else {
-            const result = await userService.UpdateInfo(id, name, address, phone);
-            res.status(StatusCodes.OK).json(result);
+            const result = await userService.UpdateInfo(id, name, address, phone, addressCode);
+            res.status(StatusCodes.OK).json({
+                status: true,
+                message: 'Thay đổi thông tin thành công',
+            });
             next();
         }
     } catch (error) {
@@ -105,22 +107,6 @@ const GetFavorite = async (req, res, next) => {
     }
 };
 
-// Create order details
-// const CreateOrderDetails = async (req, res, next) => {
-//     try {
-//         const { order_id, productId, quantity, price } = req.body;
-//         if (!order_id || !productId || !quantity || !price) {
-//             throw new ApiError(StatusCodes.CONFLICT, 'Missing something');
-//         } else {
-//             const orderDetail = await userService.CreateOrderDetails(order_id, productId, quantity, price);
-//             res.status(StatusCodes.CREATED).json(orderDetail);
-//             next();
-//         }
-//     } catch (error) {
-//         next(error);
-//     }
-// };
-
 // Create order
 const CreateOrder = async (req, res, next) => {
     try {
@@ -171,12 +157,7 @@ const GetOrderDetail = async (req, res, next) => {
 // Momo pay
 const CreateMomoPay = async (req, res, next) => {
     try {
-        const userId = req.headers.id;
-        const allProducts = await userService.GetCart(userId);
-        const totalPrice = allProducts.reduce((total, product) => {
-            return total + product.newPrice * product.productQuantity;
-        }, 0);
-
+        const { total } = req.body;
         var accessKey = 'F8BBA842ECF85';
         var secretKey = 'K951B6PE1waDMi640xX08PD3vg6EkVlz';
         var orderInfo = 'pay with MoMo';
@@ -184,7 +165,7 @@ const CreateMomoPay = async (req, res, next) => {
         var redirectUrl = 'http://10.0.2.2:1406/payment-success';
         var ipnUrl = 'http://localhost:1406/user/vnpay_ipn';
         var requestType = 'payWithMethod';
-        var amount = totalPrice;
+        var amount = total;
         var orderId = partnerCode + new Date().getTime();
         var requestId = orderId;
         var extraData = '';
@@ -527,6 +508,87 @@ const ChangePassword = async (req, res, next) => {
     }
 };
 
+const GetFee = async (req, res, next) => {
+    try {
+        const headers = {
+            token: env.SHOP_TOKEN,
+            shop_id: env.SHOP_ID,
+        };
+        const { total, toDistrictId, toWardId } = req.body;
+        console.log(req.body);
+        const to_ward_code = 'toWardId';
+        const valueAsString = toWardId.toString();
+        const result = await axios.get('https://online-gateway.ghn.vn/shiip/public-api/v2/shipping-order/fee', {
+            headers: headers,
+            params: {
+                service_type_id: 2,
+                insurance_value: total,
+                coupon: null,
+                from_district_id: 1542,
+                to_district_id: toDistrictId,
+                [to_ward_code]: valueAsString,
+                height: 15,
+                length: 15,
+                weight: 1000,
+                width: 15,
+            },
+        });
+        res.status(StatusCodes.OK).json(result.data);
+        next();
+    } catch (error) {
+        next(error);
+    }
+};
+
+const GetProvince = async (req, res, next) => {
+    try {
+        const headers = {
+            token: env.SHOP_TOKEN,
+        };
+        const result = await axios.get('https://online-gateway.ghn.vn/shiip/public-api/master-data/province', {
+            headers,
+        });
+        res.status(StatusCodes.OK).json(result.data.data);
+        next();
+    } catch (error) {
+        next(error);
+    }
+};
+
+const GetDistrict = async (req, res, next) => {
+    try {
+        const headers = {
+            token: env.SHOP_TOKEN,
+        };
+        const { provinceId } = req.body;
+        const result = await axios.get('https://online-gateway.ghn.vn/shiip/public-api/master-data/district', {
+            headers: headers,
+            params: { province_id: provinceId },
+        });
+        res.status(StatusCodes.OK).json(result.data.data);
+        next();
+    } catch (error) {
+        next(error);
+    }
+};
+
+const GetWard = async (req, res, next) => {
+    try {
+        const headers = {
+            token: env.SHOP_TOKEN,
+        };
+        const { districtId } = req.body;
+        const result = await axios.get('https://online-gateway.ghn.vn/shiip/public-api/master-data/ward', {
+            headers: headers,
+            params: { district_id: districtId },
+        });
+        res.status(StatusCodes.OK).json(result.data.data);
+        next();
+    } catch (error) {
+        next(error);
+    }
+};
+
 export const userController = {
     UpdateInfo,
     GetInfo,
@@ -547,4 +609,8 @@ export const userController = {
     DetailOrder,
     ReturnUrl,
     RateProduct,
+    GetFee,
+    GetProvince,
+    GetDistrict,
+    GetWard,
 };
