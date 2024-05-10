@@ -8,6 +8,7 @@ import https from 'https';
 import { convert } from '../utils/convert.js';
 import axios from 'axios';
 import { env } from '../config/environment.js';
+import { log } from 'console';
 
 //Update user's information
 const UpdateInfo = async (req, res, next) => {
@@ -355,7 +356,7 @@ const CreatePayment = async (req, res, next) => {
         let secretKey = 'MVQREENUPMSOYVBJWPAXHZGCWBGTLMWF';
         let vnpUrl = 'https://sandbox.vnpayment.vn/paymentv2/vpcpay.html';
 
-        let returnUrl = '/order-return';
+        let returnUrl = 'http://localhost:3000/order-return';
 
         var ipAddr =
             req.headers['x-forwarded-for'] ||
@@ -364,16 +365,17 @@ const CreatePayment = async (req, res, next) => {
             req.connection.socket.remoteAddress;
 
         var date = new Date();
+        var createDate = dateFormat(date, 'yyyymmddHHMMss');
+        var orderId = dateFormat(date, 'HHMMss');
 
-        var createDate = dateFormat(date, 'yyyymmddHHmmss');
-        var orderId = dateFormat(date, 'HHmmss');
+        console.log(createDate);
+
         var amount = totalPrice;
-        var bankCode = '';
-
         var orderInfo = orderInformation;
+
+        var bankCode = '';
         var orderType = 'billpayment';
         var locale = 'vn';
-
         var currCode = 'VND';
         var vnp_Params = {};
         vnp_Params['vnp_Version'] = '2.1.0';
@@ -388,6 +390,7 @@ const CreatePayment = async (req, res, next) => {
         vnp_Params['vnp_Amount'] = amount * 100;
         vnp_Params['vnp_ReturnUrl'] = returnUrl;
         vnp_Params['vnp_IpAddr'] = ipAddr;
+        // vnp_Params['vnp_ExpireDate'] = '20240510161318';
         vnp_Params['vnp_CreateDate'] = createDate;
         if (bankCode !== null && bankCode !== '') {
             vnp_Params['vnp_BankCode'] = bankCode;
