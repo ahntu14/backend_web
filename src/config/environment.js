@@ -17,4 +17,7 @@ export const env = {
     DATABASE_USER: process.env.DATABASE_USER,
     RETURN_URL: process.env.RETURN_URL,
     DATABASE_PORT: process.env.DATABASE_PORT,
+    TMN_CODE: process.env.TMN_CODE,
+    SECRET_KEY: process.env.SECRET_KEY,
+    VNP_URL: process.env.VNP_URL,
 };

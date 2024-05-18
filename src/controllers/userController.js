@@ -356,9 +356,9 @@ const CreatePayment = async (req, res, next) => {
             return total + product.newPrice * product.productQuantity;
         }, 0);
 
-        let tmnCode = 'V9X72QPI';
-        let secretKey = 'PVUDMVKBWORXCEUKFZZEZBKWZZNCTDNW';
-        let vnpUrl = 'https://sandbox.vnpayment.vn/paymentv2/vpcpay.html';
+        let tmnCode = env.TMN_CODE;
+        let secretKey = env.SECRET_KEY;
+        let vnpUrl = env.VNP_URL;
 
         let returnUrl = env.RETURN_URL;
 
