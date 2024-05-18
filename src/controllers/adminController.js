@@ -43,7 +43,7 @@ const getAllUsers = async (req, res, next) => {
 const deleteUser = async (req, res, next) => {
     try {
         const userId = req.params.id;
-        const result = await adminService.deleteUser(userId.slice(1));
+        const result = await adminService.deleteUser(userId);
         res.status(StatusCodes.OK).json(result);
         next();
     } catch (error) {
