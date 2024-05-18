@@ -13,4 +13,7 @@ export const env = {
     CLOUDINARY_SECRET: process.env.CLOUDINARY_SECRET,
     SHOP_TOKEN: process.env.SHOP_TOKEN,
     SHOP_ID: process.env.SHOP_ID,
+    DATABASE_PASS: process.env.DATABASE_PASS,
+    DATABASE_USER: process.env.DATABASE_USER,
+    RETURN_URL: process.env.RETURN_URL,
 };

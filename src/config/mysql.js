@@ -3,10 +3,10 @@ import { env } from './environment.js';
 
 const Database = mysql
     .createPool({
-        host: 'localhost',
+        host: env.HOSTNAME,
         database: env.DATABASE_NAME,
-        user: 'root',
-        password: '',
+        user: env.DATABASE_USER,
+        password: env.DATABASE_PASS,
     })
     .promise();
 

@@ -164,7 +164,7 @@ const CreateMomoPay = async (req, res, next) => {
         var orderInfo = 'pay with MoMo';
         var partnerCode = 'MOMO';
         var redirectUrl = 'http://10.0.2.2:1406/payment-success';
-        var ipnUrl = 'http://localhost:1406/user/vnpay_ipn';
+        var ipnUrl = 'http://10.0.2.2:1406/payment-success';
         var requestType = 'payWithMethod';
         var amount = total;
         var orderId = partnerCode + new Date().getTime();
@@ -199,15 +199,12 @@ const CreateMomoPay = async (req, res, next) => {
             requestId +
             '&requestType=' +
             requestType;
-        //puts raw signature
         console.log('--------------------RAW SIGNATURE----------------');
         console.log(rawSignature);
-        //signature
         var signature = crypto.createHmac('sha256', secretKey).update(rawSignature).digest('hex');
         console.log('--------------------SIGNATURE----------------');
         console.log(signature);
 
-        //json object send to MoMo endpoint
         const requestBody = JSON.stringify({
             partnerCode: partnerCode,
             partnerName: 'Test',
@@ -225,7 +222,6 @@ const CreateMomoPay = async (req, res, next) => {
             orderGroupId: orderGroupId,
             signature: signature,
         });
-        //Create the HTTPS objects
         const options = {
             hostname: 'test-payment.momo.vn',
             port: 443,
@@ -236,7 +232,6 @@ const CreateMomoPay = async (req, res, next) => {
                 'Content-Length': Buffer.byteLength(requestBody),
             },
         };
-        //Send the request and get the response
         const reqMomo = https.request(options, (resMomo) => {
             console.log(`Status: ${resMomo.statusCode}`);
             console.log(`Headers: ${JSON.stringify(resMomo.headers)}`);
@@ -329,6 +324,15 @@ const DeleteCart = async (req, res, next) => {
     }
 };
 
+const DeleteCartById = async (req, res, next) => {
+    try {
+        const productId = req.params.id;
+        const result = await userService.DeleteCartById(productId);
+        res.status(StatusCodes.OK).json(result);
+        next();
+    } catch (error) {}
+};
+
 // Lấy ra đơn hàng và chi tiết của nó
 const DetailOrder = async (req, res, next) => {
     try {
@@ -352,11 +356,11 @@ const CreatePayment = async (req, res, next) => {
             return total + product.newPrice * product.productQuantity;
         }, 0);
 
-        let tmnCode = 'IFU403F1';
-        let secretKey = 'MVQREENUPMSOYVBJWPAXHZGCWBGTLMWF';
+        let tmnCode = 'V9X72QPI';
+        let secretKey = 'PVUDMVKBWORXCEUKFZZEZBKWZZNCTDNW';
         let vnpUrl = 'https://sandbox.vnpayment.vn/paymentv2/vpcpay.html';
 
-        let returnUrl = 'http://localhost:3000/order-return';
+        let returnUrl = env.RETURN_URL;
 
         var ipAddr =
             req.headers['x-forwarded-for'] ||
@@ -592,6 +596,17 @@ const GetWard = async (req, res, next) => {
     }
 };
 
+const DeleteFavorite = async (req, res, next) => {
+    try {
+        const productId = req.params.id;
+        const userId = req.headers.id;
+        const result = await userService.DeleteFavorite(productId, userId);
+        res.status(200).json(result);
+    } catch (error) {
+        next(error);
+    }
+};
+
 export const userController = {
     UpdateInfo,
     GetInfo,
@@ -616,4 +631,6 @@ export const userController = {
     GetProvince,
     GetDistrict,
     GetWard,
+    DeleteCartById,
+    DeleteFavorite,
 };

@@ -305,6 +305,36 @@ const ChangePassword = async (userId, oldPassword, newPassword) => {
     }
 };
 
+const DeleteCartById = async (productId) => {
+    try {
+        const [result] = await Database.query(`Delete from cart where productId = ?`, [productId]);
+        return result;
+    } catch (error) {
+        throw error;
+    }
+};
+
+const DeleteFavorite = async (productId, userId) => {
+    try {
+        const [result] = await Database.query(`Delete from favorite where productId = ? and userId = ?`, [
+            productId,
+            userId,
+        ]);
+        if (result)
+            return {
+                status: true,
+                message: 'Xóa thành công',
+            };
+        else
+            return {
+                status: false,
+                message: 'Xóa thất bại',
+            };
+    } catch (error) {
+        throw error;
+    }
+};
+
 export const userService = {
     UpdateInfo,
     GetInfo,
@@ -323,4 +353,6 @@ export const userService = {
     DetailOrder,
     RateProduct,
     ChangePassword,
+    DeleteCartById,
+    DeleteFavorite,
 };

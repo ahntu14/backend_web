@@ -31,14 +31,13 @@ Router.get('/order-detail/:id', jwtMiddleware.verifyToken, userController.GetOrd
 //Create order
 Router.post('/order', jwtMiddleware.verifyToken, userController.CreateOrder);
 
-// Create order details
-// Router.post('/order-detail', jwtMiddleware.verifyToken, userController.CreateOrderDetails);
+Router.delete('/favorite/:id', jwtMiddleware.verifyToken, userController.DeleteFavorite);
 
 // VN Pay
 Router.post('/payment', jwtMiddleware.verifyToken, userController.CreatePayment);
 
 // Momo payment
-Router.get('/momo-pay', jwtMiddleware.verifyToken, userController.CreateMomoPay);
+Router.post('/momo-pay', userController.CreateMomoPay);
 
 // Change quantity in cart
 Router.put('/change-quantity', jwtMiddleware.verifyToken, userController.ChangeQuantity);
@@ -69,5 +68,7 @@ Router.get('/province', userController.GetProvince);
 Router.post('/district', userController.GetDistrict);
 
 Router.post('/ward', userController.GetWard);
+
+Router.delete('/cart/:id', userController.DeleteCartById);
 
 export const userRoutes = Router;
