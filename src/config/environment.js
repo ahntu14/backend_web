@@ -20,4 +20,5 @@ export const env = {
     TMN_CODE: process.env.TMN_CODE,
     SECRET_KEY: process.env.SECRET_KEY,
     VNP_URL: process.env.VNP_URL,
+    RESETPASSWORD_URL: process.env.RESETPASSWORD_URL,
 };
