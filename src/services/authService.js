@@ -175,7 +175,7 @@ const ForgotPassword = async (email) => {
 // Change password
 const ChangePassword = async (token, newPassword) => {
     try {
-        const [isUser] = await Database.query('SELECT * FROM forgot_password WHERE token = ?', [token]);
+        const [isUser] = await Database.query('SELECT distinct * FROM forgot_password WHERE token = ?', [token]);
         if (isUser.length <= 0) {
             return new ApiError(StatusCodes.UNAUTHORIZED, 'Bạn đã thay đổi mật khẩu rồi');
         } else if (parseInt(isUser[0].exp_time) < new Date().getTime()) {
