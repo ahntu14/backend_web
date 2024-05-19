@@ -182,22 +182,13 @@ const ChangePassword = async (token, newPassword) => {
             return new ApiError(StatusCodes.BAD_REQUEST, 'Link tạo lại mật khẩu đã hết hạn');
         } else {
             const [user] = await Database.query('SELECT * FROM user where id = ?', [parseInt(isUser[0].user_id)]);
-            console.log(newPassword, user[0].password);
             const compare = await comparePassword(newPassword, user[0].password);
-
-            if (compare) {
-                return new ApiError(StatusCodes.BAD_REQUEST, 'Mật khẩu phải khác mật khẩu cũ');
-            } else {
-                const hashedPassword = await hashPassword(newPassword);
-                await Database.query(`UPDATE user set password = ? where id = ?`, [
-                    hashedPassword,
-                    parseInt(user[0].id),
-                ]);
-                return {
-                    status: true,
-                    message: 'Thay đổi mật khẩu thành công',
-                };
-            }
+            const hashedPassword = await hashPassword(newPassword);
+            await Database.query(`UPDATE user set password = ? where id = ?`, [hashedPassword, parseInt(user[0].id)]);
+            return {
+                status: true,
+                message: 'Thay đổi mật khẩu thành công',
+            };
         }
     } catch (error) {
         throw error;
