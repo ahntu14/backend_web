@@ -8,6 +8,7 @@ const Database = mysql
         port: env.DATABASE_PORT,
         user: env.DATABASE_USER,
         password: env.DATABASE_PASS,
+        connectionLimit: 5,
     })
     .promise();
 
