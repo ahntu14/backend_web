@@ -253,11 +253,17 @@ const DetailOrder = async (userId) => {
         const [result] = await Database.query(query);
 
         result.forEach((row) => {
-            row.order_details = JSON.parse(row.order_details);
+            try {
+                row.order_details = JSON.parse(row.order_details);
+            } catch (jsonError) {
+                console.error('JSON không hợp lệ cho order_details:', jsonError);
+                row.order_details = [];
+            }
         });
 
         return result;
     } catch (error) {
+        console.error('Lỗi khi thực hiện truy vấn:', error);
         throw error;
     }
 };
