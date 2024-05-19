@@ -438,7 +438,7 @@ const ReturnUrl = async (req, res, next) => {
         var secureHash = vnp_Params['vnp_SecureHash'];
         let orderInfo = vnp_Params['vnp_OrderInfo'];
 
-        let userId = parseInt(orderInfo[0]);
+        let userId = parseInt(orderInfo.split('-')[0]);
 
         let orderInformation = convert.toString(orderInfo.slice(2));
 

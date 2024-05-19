@@ -34,7 +34,7 @@ export const rePassWord = async (email, token) => {
         },
     });
 
-    let url = `${env.RESETPASSWORD_URL}/reset-password?token=${token}`;
+    let url = `${env.RETURN_URL}/reset-password?token=${token}`;
 
     let info = await transporter.sendMail({
         from: `"Phạm Anh Tú" <${env.MAIL_USERNAME}>`,
