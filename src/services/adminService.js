@@ -254,23 +254,45 @@ const getOrderStatus = async (status) => {
 };
 
 // Lấy ra chi tiết đơn hàng
-const getOrderDetail = async (orderId) => {
+const getOrderDetail = async (userId) => {
     try {
-        const query = `SELECT 
-    o.id,
-    SUM(o.total_amount) AS total_amount,
-    o.created_at AS order_date,
-    JSON_ARRAYAGG(
-        JSON_OBJECT('name', p.name, 'imageUrl', p.imageUrl, 'quantity', od.quantity)
-    ) AS order_details
-    FROM orders o 
-    JOIN order_details od ON o.id = od.order_id 
-    JOIN product p ON od.productId = p.id 
-    WHERE o.id = ${orderId}
-    GROUP BY o.id, o.created_at;`;
+        const query = `
+            SELECT 
+            o.id,
+            o.total_amount AS total_amount,
+            o.created_at AS order_date,
+            o.provider AS provider,
+            o.payment_status as status,
+            o.orderInfo as orderInfo,
+            CONCAT(
+                '[',
+                GROUP_CONCAT(
+                    JSON_OBJECT('id', p.id, 'name', p.name, 'imageUrl', p.imageUrl, 'quantity', od.quantity, 'oldPrice', p.oldPrice, 'newPrice', p.newPrice, 'rating', r.rate, 'slug', p.slug)
+                    SEPARATOR ','
+                ),
+                ']'
+            ) AS order_details
+        FROM orders o
+        LEFT JOIN order_details od ON o.id = od.order_id 
+        LEFT JOIN product p ON od.productId = p.id
+        LEFT JOIN rating r ON r.product_id = p.id AND r.user_id = o.userId
+        WHERE o.userId = ${userId}
+        GROUP BY o.id, o.created_at;
+        `;
         const [result] = await Database.query(query);
+
+        result.forEach((row) => {
+            try {
+                row.order_details = JSON.parse(row.order_details);
+            } catch (jsonError) {
+                console.error('JSON không hợp lệ cho order_details:', jsonError);
+                row.order_details = [];
+            }
+        });
+
         return result;
     } catch (error) {
+        console.error('Lỗi khi thực hiện truy vấn:', error);
         throw error;
     }
 };
